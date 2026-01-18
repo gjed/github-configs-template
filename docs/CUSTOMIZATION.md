@@ -83,7 +83,7 @@ resource "github_branch_default" "this" {
 }
 ```
 
-2. Add variable:
+1. Add variable:
 
 ```hcl
 # terraform/modules/repository/variables.tf
@@ -94,7 +94,7 @@ variable "default_branch" {
 }
 ```
 
-3. Wire through main.tf and yaml-config.tf
+1. Wire through main.tf and yaml-config.tf
 
 ## Creating Custom Groups
 
