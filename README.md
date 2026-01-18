@@ -1,8 +1,14 @@
-# GitHub Organization Terraform Template
+<!-- markdownlint-disable MD033 -->
+<p align="center">
+  <img src="docs/logo.png" alt="GitHub Organization Terraform Template" width="400">
+</p>
+<!-- markdownlint-enable MD033 -->
+
+# 🏗️ GitHub Organization Terraform Template
 
 Manage your GitHub organization's repositories as code using Terraform and YAML configuration.
 
-## Features
+## ✨ Features
 
 - **YAML-based configuration** - Human-readable repository definitions
 - **Configuration groups** - Share settings across multiple repositories (DRY)
@@ -10,7 +16,7 @@ Manage your GitHub organization's repositories as code using Terraform and YAML 
 - **Subscription-aware** - Gracefully handles GitHub Free tier limitations
 - **Onboarding script** - Easily import existing repositories
 
-## Quick Start
+## 🚀 Quick Start
 
 ### 1. Use this template
 
@@ -51,7 +57,7 @@ make plan   # Review changes
 make apply  # Apply changes
 ```
 
-## Project Structure
+## 📁 Project Structure
 
 ```text
 .
@@ -69,7 +75,7 @@ make apply  # Apply changes
 └── scripts/                   # Helper scripts
 ```
 
-## Configuration Groups
+## 🔧 Configuration Groups
 
 Groups allow you to share settings across repositories:
 
@@ -92,13 +98,13 @@ my-repo:
   groups: ["base", "oss"]
 ```
 
-## Documentation
+## 📚 Documentation
 
 - [Quick Start Guide](docs/QUICKSTART.md)
 - [Configuration Reference](docs/CONFIGURATION.md)
 - [Customization Guide](docs/CUSTOMIZATION.md)
 
-## Requirements
+## 📋 Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.0
 - GitHub Personal Access Token with scopes:
@@ -106,7 +112,7 @@ my-repo:
   - `admin:org` - Manage organization (for teams)
   - `delete_repo` - Delete repositories (optional)
 
-## Commands
+## ⚡ Commands
 
 ```bash
 make init      # Initialize Terraform
@@ -116,16 +122,16 @@ make validate  # Validate configuration
 make fmt       # Format Terraform files
 ```
 
-## GitHub Subscription Tiers
+## 💳 GitHub Subscription Tiers
 
 | Feature | Free | Pro | Team | Enterprise |
 |---------|------|-----|------|------------|
-| Public repo rulesets | Yes | Yes | Yes | Yes |
-| Private repo rulesets | No | Yes | Yes | Yes |
-| Push rulesets | No | No | Yes | Yes |
+| Public repo rulesets | ✅ | ✅ | ✅ | ✅ |
+| Private repo rulesets | ❌ | ✅ | ✅ | ✅ |
+| Push rulesets | ❌ | ❌ | ✅ | ✅ |
 
 The template automatically skips unsupported features based on your subscription tier.
 
-## License
+## 📄 License
 
 [MIT](LICENSE)
