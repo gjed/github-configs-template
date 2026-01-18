@@ -1,0 +1,62 @@
+---
+# Yamllint configuration
+# See https://yamllint.readthedocs.io/en/stable/rules.html
+
+extends: default
+
+rules:
+  # Line length - allow longer lines for readability
+  line-length:
+    max: 200
+    level: warning
+    allow-non-breakable-words: true
+    allow-non-breakable-inline-mappings: true
+
+  # Indentation - 2 spaces, consistent
+  indentation:
+    spaces: 2
+    indent-sequences: true
+    check-multi-line-strings: false
+
+  # Braces - allow inline for short mappings
+  braces:
+    min-spaces-inside: 0
+    max-spaces-inside: 1
+
+  # Brackets - allow inline for short sequences
+  brackets:
+    min-spaces-inside: 0
+    max-spaces-inside: 1
+
+  # Comments - require space after #
+  comments:
+    require-starting-space: true
+    ignore-shebangs: true
+    min-spaces-from-content: 1
+
+  # Document markers - don't require ---
+  document-start: disable
+  document-end: disable
+
+  # Empty lines
+  empty-lines:
+    max: 2
+    max-start: 0
+    max-end: 1
+
+  # Truthy values - allow various boolean representations
+  truthy:
+    allowed-values: ["true", "false", "yes", "no", "on", "off"]
+    check-keys: false
+
+  # Quoted strings - don't enforce
+  quoted-strings: disable
+
+  # New lines - allow various endings
+  new-lines:
+    type: unix
+
+ignore: |
+  .git/
+  .terraform/
+  **/.terraform/

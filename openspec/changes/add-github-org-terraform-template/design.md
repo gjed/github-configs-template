@@ -37,7 +37,7 @@ This template provides a factory pattern implementation using Terraform and YAML
 
 **What:** Use Terraform's native `yamldecode()` to read configuration directly from YAML files.
 
-**Why:** 
+**Why:**
 - No preprocessing or conversion scripts needed
 - Human-readable configuration format
 - Easy to validate and lint

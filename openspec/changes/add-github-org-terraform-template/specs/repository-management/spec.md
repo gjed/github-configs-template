@@ -193,5 +193,3 @@ The system SHALL output useful information about managed resources.
 
 - **WHEN** features are skipped due to subscription limitations
 - **THEN** the system outputs a warning listing affected repositories
-
-
