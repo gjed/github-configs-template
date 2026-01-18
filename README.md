@@ -1,12 +1,12 @@
+# 🏗️ GitHub Organization Terraform Template
+
+Manage your GitHub organization's repositories as code using Terraform and YAML configuration.
+
 <!-- markdownlint-disable MD033 -->
 <p align="center">
   <img src="docs/logo.png" alt="GitHub Organization Terraform Template" width="400">
 </p>
 <!-- markdownlint-enable MD033 -->
-
-# 🏗️ GitHub Organization Terraform Template
-
-Manage your GitHub organization's repositories as code using Terraform and YAML configuration.
 
 ## ✨ Features
 
