@@ -2,9 +2,12 @@
 
 ## Purpose
 
-A public GitHub template repository that implements a factory pattern for managing GitHub organization repositories using Terraform. Users can fork this template to manage their own GitHub organization's repository configurations as code.
+A public GitHub template repository that implements a factory pattern for managing GitHub organization
+repositories using Terraform. Users can fork this template to manage their own GitHub organization's
+repository configurations as code.
 
 **Goals:**
+
 - Enable GitOps workflows for GitHub repository management
 - Provide consistent security policies across repositories
 - Reduce manual configuration overhead
@@ -23,6 +26,7 @@ A public GitHub template repository that implements a factory pattern for managi
 ### Code Style
 
 **Terraform:**
+
 - Use `terraform fmt` for formatting
 - Use descriptive variable names
 - Document all variables with descriptions
@@ -30,6 +34,7 @@ A public GitHub template repository that implements a factory pattern for managi
 - Keep modules focused and small
 
 **YAML:**
+
 - 2-space indentation
 - Use descriptive keys
 - Comment complex configurations
@@ -37,11 +42,13 @@ A public GitHub template repository that implements a factory pattern for managi
 ### Architecture Patterns
 
 **Factory Pattern:**
+
 - Configuration files define "what" (repositories, settings)
 - Terraform modules define "how" (resource creation)
 - YAML parsing layer transforms configuration to module inputs
 
 **Configuration Inheritance:**
+
 - Base settings in `config.yml`
 - Shared settings in configuration groups
 - Repository-specific overrides
@@ -64,6 +71,7 @@ A public GitHub template repository that implements a factory pattern for managi
 ## Domain Context
 
 **GitHub Concepts:**
+
 - Repository: A git repository with associated settings
 - Team: A group of users with shared permissions
 - Collaborator: An individual user with repository access
@@ -71,6 +79,7 @@ A public GitHub template repository that implements a factory pattern for managi
 - Visibility: public, private, or internal (enterprise only)
 
 **Subscription Tiers:**
+
 - Free: Limited ruleset support (public repos only)
 - Pro: Rulesets for all repos (personal accounts)
 - Team/Enterprise: Full feature set including push rulesets
