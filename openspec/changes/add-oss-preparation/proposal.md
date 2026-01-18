@@ -29,7 +29,7 @@ Without these, the project will be difficult to adopt and maintain as a communit
 
 - **Affected specs**: Creates new `oss-readiness` capability
 - **Affected code**: Adds new files at project root
-- **Dependencies**: 
+- **Dependencies**:
   - pre-commit framework
   - tflint (Terraform linter)
   - checkov (Terraform security scanner)
