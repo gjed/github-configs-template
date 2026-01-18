@@ -2,7 +2,8 @@
 
 ## Why
 
-This repository is intended to be a public template that others can fork and use. Before publishing as open source, it needs standard OSS documentation and tooling to:
+This repository is intended to be a public template that others can fork and use. Before publishing as
+open source, it needs standard OSS documentation and tooling to:
 
 - Help users understand what the project does and how to use it (README)
 - Set clear contribution expectations and guidelines (CONTRIBUTING)
@@ -14,8 +15,10 @@ Without these, the project will be difficult to adopt and maintain as a communit
 
 ## What Changes
 
-- **README.md**: Comprehensive documentation including purpose, prerequisites, quick start, configuration reference, examples, and troubleshooting
-- **CONTRIBUTING.md**: Guidelines for contributing including development setup, code style, PR process, and issue reporting
+- **README.md**: Comprehensive documentation including purpose, prerequisites, quick start, configuration
+  reference, examples, and troubleshooting
+- **CONTRIBUTING.md**: Guidelines for contributing including development setup, code style, PR process,
+  and issue reporting
 - **CODE_OF_CONDUCT.md**: Contributor Covenant code of conduct for community standards
 - **LICENSE**: Apache 2.0 license (permissive, business-friendly, common for IaC projects)
 - **.pre-commit-config.yaml**: Pre-commit hooks configuration for:

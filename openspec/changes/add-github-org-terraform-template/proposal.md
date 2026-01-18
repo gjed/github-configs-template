@@ -2,7 +2,10 @@
 
 ## Why
 
-Organizations managing multiple GitHub repositories need a standardized, maintainable way to configure repositories at scale. Currently, repository settings are managed manually through the GitHub UI, leading to inconsistent configurations, security drift, and operational overhead. A public template that implements a factory pattern for GitHub organization management via Terraform would enable teams to:
+Organizations managing multiple GitHub repositories need a standardized, maintainable way to configure
+repositories at scale. Currently, repository settings are managed manually through the GitHub UI,
+leading to inconsistent configurations, security drift, and operational overhead. A public template that
+implements a factory pattern for GitHub organization management via Terraform would enable teams to:
 
 - Manage all repository configurations as code (IaC)
 - Apply consistent security policies and settings across repositories
@@ -11,7 +14,8 @@ Organizations managing multiple GitHub repositories need a standardized, maintai
 
 ## What Changes
 
-This is a new project (greenfield) that creates a public GitHub template repository. The template implements:
+This is a new project (greenfield) that creates a public GitHub template repository. The template
+implements:
 
 - **Terraform module** for managing GitHub repositories with a factory pattern
 - **YAML-based configuration** for repositories, groups, and rulesets

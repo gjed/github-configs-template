@@ -1,6 +1,7 @@
 # OSS Readiness
 
-This capability ensures the project meets open source best practices for documentation, licensing, and code quality tooling.
+This capability ensures the project meets open source best practices for documentation, licensing, and
+code quality tooling.
 
 ## ADDED Requirements
 
@@ -54,7 +55,8 @@ The project SHALL provide a CONTRIBUTING.md file that documents:
 
 ### Requirement: Code of Conduct
 
-The project SHALL provide a CODE_OF_CONDUCT.md file based on the Contributor Covenant that establishes community standards for respectful and inclusive participation.
+The project SHALL provide a CODE_OF_CONDUCT.md file based on the Contributor Covenant that establishes
+community standards for respectful and inclusive participation.
 
 #### Scenario: Community member checks expected behavior
 
@@ -65,7 +67,8 @@ The project SHALL provide a CODE_OF_CONDUCT.md file based on the Contributor Cov
 
 ### Requirement: Open Source License
 
-The project SHALL include a LICENSE file at the repository root containing the Apache License 2.0 full text.
+The project SHALL include a LICENSE file at the repository root containing the Apache License 2.0 full
+text.
 
 #### Scenario: User checks license terms
 
@@ -102,7 +105,8 @@ The project SHALL provide a .pre-commit-config.yaml file that configures automat
 
 ### Requirement: Markdown Lint Configuration
 
-The project SHALL provide a .markdownlint.yaml configuration file that defines markdown style rules appropriate for technical documentation.
+The project SHALL provide a .markdownlint.yaml configuration file that defines markdown style rules
+appropriate for technical documentation.
 
 #### Scenario: Markdownlint uses project configuration
 
@@ -112,7 +116,8 @@ The project SHALL provide a .markdownlint.yaml configuration file that defines m
 
 ### Requirement: YAML Lint Configuration
 
-The project SHALL provide a .yamllint.yaml configuration file that defines YAML style rules appropriate for Terraform configurations and CI/CD workflows.
+The project SHALL provide a .yamllint.yaml configuration file that defines YAML style rules appropriate
+for Terraform configurations and CI/CD workflows.
 
 #### Scenario: Yamllint uses project configuration
 

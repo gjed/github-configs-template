@@ -4,12 +4,14 @@
 
 ### Requirement: YAML-Based Repository Configuration
 
-The system SHALL read repository configurations from YAML files in the `config/` directory using Terraform's native `yamldecode()` function.
+The system SHALL read repository configurations from YAML files in the `config/` directory using
+Terraform's native `yamldecode()` function.
 
 #### Scenario: Load configuration files
 
 - **WHEN** Terraform is initialized and planned
-- **THEN** the system reads `config/config.yml`, `config/groups.yml`, `config/repositories.yml`, and `config/rulesets.yml`
+- **THEN** the system reads `config/config.yml`, `config/groups.yml`, `config/repositories.yml`, and
+  `config/rulesets.yml`
 - **AND** parses them into Terraform local values
 
 #### Scenario: Invalid YAML syntax
@@ -84,7 +86,10 @@ The system SHALL create and manage GitHub repositories using the Terraform GitHu
 #### Scenario: Repository settings applied
 
 - **WHEN** a repository is created or updated
-- **THEN** the following settings are applied: visibility, description, homepage_url, has_wiki, has_issues, has_projects, has_downloads, has_discussions, allow_merge_commit, allow_squash_merge, allow_rebase_merge, allow_auto_merge, allow_update_branch, delete_branch_on_merge, web_commit_signoff_required, topics, license_template
+- **THEN** the following settings are applied: visibility, description, homepage_url, has_wiki,
+  has_issues, has_projects, has_downloads, has_discussions, allow_merge_commit, allow_squash_merge,
+  allow_rebase_merge, allow_auto_merge, allow_update_branch, delete_branch_on_merge,
+  web_commit_signoff_required, topics, license_template
 
 ---
 
