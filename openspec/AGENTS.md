@@ -455,7 +455,7 @@ Only add complexity with:
 ## Tool Selection Guide
 
 | Task | Tool | Why |
-|------|------|-----|
+| ---- | ---- | --- |
 | Find files by pattern | Glob | Fast pattern matching |
 | Search code content | Grep | Optimized regex search |
 | Read specific files | Read | Direct file access |

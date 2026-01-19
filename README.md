@@ -125,13 +125,9 @@ make fmt       # Format Terraform files
 ## 💳 GitHub Subscription Tiers
 
 | Feature | Free | Pro | Team | Enterprise |
-|---------|------|-----|------|------------|
+| ------- | ---- | --- | ---- | ---------- |
 | Public repo rulesets | ✅ | ✅ | ✅ | ✅ |
 | Private repo rulesets | ❌ | ✅ | ✅ | ✅ |
 | Push rulesets | ❌ | ❌ | ✅ | ✅ |
 
 The template automatically skips unsupported features based on your subscription tier.
-
-## 📄 License
-
-[MIT](LICENSE)
