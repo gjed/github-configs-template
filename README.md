@@ -1,4 +1,4 @@
-# 🏗️ GitHub Organization Terraform Template
+# GitHub Organization Terraform Template
 
 Manage your GitHub organization's repositories as code using Terraform and YAML configuration.
 
@@ -8,7 +8,7 @@ Manage your GitHub organization's repositories as code using Terraform and YAML 
 </p>
 <!-- markdownlint-enable MD033 -->
 
-## ✨ Features
+## Features
 
 - **YAML-based configuration** - Human-readable repository definitions
 - **Configuration groups** - Share settings across multiple repositories (DRY)
@@ -16,118 +16,137 @@ Manage your GitHub organization's repositories as code using Terraform and YAML 
 - **Subscription-aware** - Gracefully handles GitHub Free tier limitations
 - **Onboarding script** - Easily import existing repositories
 
-## 🚀 Quick Start
+## How It Works
 
-### 1. Use this template
+```mermaid
+flowchart LR
+    subgraph config["config/"]
+        C[config.yml] --> TF
+        G[groups.yml] --> TF
+        R[repositories.yml] --> TF
+        RS[rulesets.yml] --> TF
+    end
 
-Click "Use this template" on GitHub to create your own repository.
+    subgraph terraform["terraform/"]
+        TF[Terraform]
+    end
 
-### 2. Configure your organization
-
-Edit `config/config.yml`:
-
-```yaml
-organization: your-org-name
-subscription: free  # or pro, team, enterprise
+    subgraph github["GitHub"]
+        TF --> Repos[Repositories]
+        TF --> Rules[Rulesets]
+        TF --> Teams[Team Access]
+    end
 ```
 
-### 3. Set up authentication
+## Quick Start
 
 ```bash
+# 1. Use this template on GitHub, then clone your repository
+
+# 2. Set your GitHub token
 export GITHUB_TOKEN="your_github_token"
+
+# 3. Configure and apply
+make init && make plan && make apply
 ```
 
-### 4. Define your repositories
+See the [Quick Start Guide](docs/QUICKSTART.md) for detailed setup instructions.
 
-Edit `config/repositories.yml`:
+## Example Configuration
 
 ```yaml
-my-awesome-project:
-  description: "My awesome project"
-  groups: ["base", "oss"]
-  topics:
-    - awesome
-```
+# config/config.yml
+organization: acme-corp
+subscription: team
 
-### 5. Apply configuration
-
-```bash
-make init
-make plan   # Review changes
-make apply  # Apply changes
-```
-
-## 📁 Project Structure
-
-```text
-.
-├── config/                    # YAML configuration files
-│   ├── config.yml             # Organization settings
-│   ├── groups.yml             # Configuration groups
-│   ├── repositories.yml       # Repository definitions
-│   └── rulesets.yml           # Ruleset definitions
-├── terraform/                 # Terraform code
-│   ├── main.tf                # Entry point
-│   ├── yaml-config.tf         # YAML parsing logic
-│   ├── outputs.tf             # Output values
-│   └── modules/repository/    # Repository module
-├── docs/                      # Documentation
-└── scripts/                   # Helper scripts
-```
-
-## 🔧 Configuration Groups
-
-Groups allow you to share settings across repositories:
-
-```yaml
 # config/groups.yml
+base:
+  has_issues: false
+  has_wiki: false
+  delete_branch_on_merge: true
+  teams:
+    platform: admin
+    developers: push
+
 oss:
   visibility: public
   has_issues: true
-  delete_branch_on_merge: true
+  has_discussions: true
+  license_template: apache-2.0
+  topics:
+    - open-source
   rulesets:
     - oss-main-protection
-```
 
-Then reference in repositories:
+internal:
+  visibility: private
+  teams:
+    security: pull
 
-```yaml
 # config/repositories.yml
-my-repo:
-  description: "My open source project"
+terraform-modules:
+  description: "Shared Terraform modules for infrastructure"
   groups: ["base", "oss"]
+  topics:
+    - terraform
+    - infrastructure
+  homepage_url: "https://acme-corp.github.io/terraform-modules"
+
+api-gateway:
+  description: "Internal API gateway service"
+  groups: ["base", "internal"]
+  has_wiki: true
+  rulesets:
+    - strict-main-protection
+
+# config/rulesets.yml
+oss-main-protection:
+  target: branch
+  enforcement: active
+  conditions:
+    ref_name:
+      include: ["~DEFAULT_BRANCH"]
+  rules:
+    - type: pull_request
+      parameters:
+        required_approving_review_count: 1
+        dismiss_stale_reviews_on_push: true
+    - type: required_status_checks
+      parameters:
+        required_checks:
+          - context: "ci"
 ```
 
-## 📚 Documentation
+## Documentation
 
-- [Quick Start Guide](docs/QUICKSTART.md)
-- [Configuration Reference](docs/CONFIGURATION.md)
-- [Customization Guide](docs/CUSTOMIZATION.md)
+- [Quick Start Guide](docs/QUICKSTART.md) - Get up and running
+- [Configuration Reference](docs/CONFIGURATION.md) - All available options
+- [Customization Guide](docs/CUSTOMIZATION.md) - Extend the template
 
-## 📋 Requirements
+## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.0
-- GitHub Personal Access Token with scopes:
-  - `repo` - Full control of repositories
-  - `admin:org` - Manage organization (for teams)
-  - `delete_repo` - Delete repositories (optional)
+- GitHub Personal Access Token with `repo` and `admin:org` scopes
 
-## ⚡ Commands
+## Commands
 
 ```bash
 make init      # Initialize Terraform
 make plan      # Preview changes
 make apply     # Apply changes
 make validate  # Validate configuration
-make fmt       # Format Terraform files
 ```
 
-## 💳 GitHub Subscription Tiers
+## GitHub Subscription Tiers
 
 | Feature | Free | Pro | Team | Enterprise |
 | ------- | ---- | --- | ---- | ---------- |
-| Public repo rulesets | ✅ | ✅ | ✅ | ✅ |
-| Private repo rulesets | ❌ | ✅ | ✅ | ✅ |
-| Push rulesets | ❌ | ❌ | ✅ | ✅ |
+| Public repo rulesets | Yes | Yes | Yes | Yes |
+| Private repo rulesets | No | Yes | Yes | Yes |
+| Push rulesets | No | No | Yes | Yes |
 
 The template automatically skips unsupported features based on your subscription tier.
+
+## License
+
+[Apache 2.0](LICENSE)
