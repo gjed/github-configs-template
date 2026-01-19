@@ -60,7 +60,7 @@ group-name:
 When a repository uses multiple groups:
 
 | Setting Type | Behavior |
-|--------------|----------|
+| ------------ | -------- |
 | Single values | Later groups override |
 | `topics` | Merged and deduplicated |
 | `teams` | Merged, later overrides |
@@ -123,7 +123,7 @@ repository-name:
 All available repository settings:
 
 | Setting | Type | Default | Description |
-|---------|------|---------|-------------|
+| ------- | ---- | ------- | ----------- |
 | `visibility` | string | `private` | `public`, `private`, or `internal` |
 | `has_wiki` | bool | `false` | Enable wiki |
 | `has_issues` | bool | `false` | Enable issues |
@@ -185,7 +185,7 @@ ruleset-name:
 ### Available Rule Types
 
 | Rule Type | Description | Has Parameters |
-|-----------|-------------|----------------|
+| --------- | ----------- | -------------- |
 | `deletion` | Prevent deletion | No |
 | `non_fast_forward` | Prevent force push | No |
 | `required_linear_history` | Require linear history | No |
@@ -237,7 +237,7 @@ ruleset-name:
 ## Team Permissions
 
 | Permission | Description |
-|------------|-------------|
+| ---------- | ----------- |
 | `pull` | Read access |
 | `triage` | Read + manage issues/PRs |
 | `push` | Read + write |

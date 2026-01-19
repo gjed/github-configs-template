@@ -5,7 +5,7 @@ This document provides a complete reference for all configuration options.
 ## Repository Settings
 
 | Field | Type | Default | Description |
-|-------|------|---------|-------------|
+| ----- | ---- | ------- | ----------- |
 | `description` | string | `""` | Repository description |
 | `visibility` | string | `"private"` | One of: `public`, `private`, `internal` |
 | `has_issues` | bool | `true` | Enable issues |
@@ -78,7 +78,7 @@ repositories:
 ### Ruleset Fields
 
 | Field | Type | Description |
-|-------|------|-------------|
+| ----- | ---- | ----------- |
 | `target` | string | `branch` or `tag` |
 | `enforcement` | string | `active`, `evaluate`, or `disabled` |
 | `conditions.ref_name.include` | list | Patterns to include |
