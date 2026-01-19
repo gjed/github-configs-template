@@ -1,4 +1,4 @@
-# GitHub Organization Terraform Template
+# 🏗️ GitHub Organization Terraform Template
 
 Manage your GitHub organization's repositories as code using Terraform and YAML configuration.
 
@@ -8,7 +8,7 @@ Manage your GitHub organization's repositories as code using Terraform and YAML 
 </p>
 <!-- markdownlint-enable MD033 -->
 
-## Features
+## ✨ Features
 
 - **YAML-based configuration** - Human-readable repository definitions
 - **Configuration groups** - Share settings across multiple repositories (DRY)
@@ -19,22 +19,22 @@ Manage your GitHub organization's repositories as code using Terraform and YAML 
 ## How It Works
 
 ```text
-                              ┌──────────────────────────┐
-                              │         GitHub           │
-                              │                          │
-┌─────────────────┐           │  ┌──────────────────┐   │
-│ repositories.yml│           │  │ terraform-modules│   │
-│                 │           │  └──────────────────┘   │
-│ - tf-modules    │  Terraform│  ┌──────────────────┐   │
-│ - api-gateway   │ ─────────>│  │ api-gateway      │   │
-│ - docs-site     │           │  └──────────────────┘   │
-│                 │           │  ┌──────────────────┐   │
-└─────────────────┘           │  │ docs-site        │   │
-                              │  └──────────────────┘   │
-                              └──────────────────────────┘
+                                    ┌─────────────────────┐
+                                    │         GitHub      │
+                                    │                     │
+┌─────────────────┐                 │  ┌──────────────┐   │
+│ repositories.yml│                 │  │ tf-modules   │   │
+│                 │                 │  └──────────────┘   │
+│ - tf-modules    │    Terraform    │  ┌──────────────┐   │
+│ - api-gateway   │ ──────────────> │  │ api-gateway  │   │
+│ - docs-site     │                 │  └──────────────┘   │
+│                 │                 │  ┌──────────────┐   │
+└─────────────────┘                 │  │ docs-site    │   │
+                                    │  └──────────────┘   │
+                                    └─────────────────────┘
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
 ```bash
 # 1. Use this template on GitHub, then clone your repository
@@ -48,7 +48,7 @@ make init && make plan && make apply
 
 See the [Quick Start Guide](docs/QUICKSTART.md) for detailed setup instructions.
 
-## Example Configuration
+## 🔧 Example Configuration
 
 ```yaml
 # config/repositories.yml
@@ -67,18 +67,18 @@ docs-site:
   homepage_url: "https://docs.example.com"
 ```
 
-## Documentation
+## 📚 Documentation
 
 - [Quick Start Guide](docs/QUICKSTART.md) - Get up and running
 - [Configuration Reference](docs/CONFIGURATION.md) - All available options
 - [Customization Guide](docs/CUSTOMIZATION.md) - Extend the template
 
-## Requirements
+## 📋 Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.0
 - GitHub Personal Access Token with `repo` and `admin:org` scopes
 
-## Commands
+## ⚡ Commands
 
 ```bash
 make init      # Initialize Terraform
@@ -87,7 +87,7 @@ make apply     # Apply changes
 make validate  # Validate configuration
 ```
 
-## GitHub Subscription Tiers
+## 💳 GitHub Subscription Tiers
 
 | Feature | Free | Pro | Team | Enterprise |
 | ------- | ---- | --- | ---- | ---------- |
@@ -97,6 +97,6 @@ make validate  # Validate configuration
 
 The template automatically skips unsupported features based on your subscription tier.
 
-## License
+## ⚖️ License
 
 [Apache 2.0](LICENSE)
