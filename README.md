@@ -18,24 +18,20 @@ Manage your GitHub organization's repositories as code using Terraform and YAML 
 
 ## How It Works
 
-```mermaid
-flowchart LR
-    subgraph config["config/"]
-        C[config.yml] --> TF
-        G[groups.yml] --> TF
-        R[repositories.yml] --> TF
-        RS[rulesets.yml] --> TF
-    end
-
-    subgraph terraform["terraform/"]
-        TF[Terraform]
-    end
-
-    subgraph github["GitHub"]
-        TF --> Repos[Repositories]
-        TF --> Rules[Rulesets]
-        TF --> Teams[Team Access]
-    end
+```text
+                              ┌──────────────────────────┐
+                              │         GitHub           │
+                              │                          │
+┌─────────────────┐           │  ┌──────────────────┐   │
+│ repositories.yml│           │  │ terraform-modules│   │
+│                 │           │  └──────────────────┘   │
+│ - tf-modules    │  Terraform│  ┌──────────────────┐   │
+│ - api-gateway   │ ─────────>│  │ api-gateway      │   │
+│ - docs-site     │           │  └──────────────────┘   │
+│                 │           │  ┌──────────────────┐   │
+└─────────────────┘           │  │ docs-site        │   │
+                              │  └──────────────────┘   │
+                              └──────────────────────────┘
 ```
 
 ## Quick Start
@@ -55,66 +51,20 @@ See the [Quick Start Guide](docs/QUICKSTART.md) for detailed setup instructions.
 ## Example Configuration
 
 ```yaml
-# config/config.yml
-organization: acme-corp
-subscription: team
-
-# config/groups.yml
-base:
-  has_issues: false
-  has_wiki: false
-  delete_branch_on_merge: true
-  teams:
-    platform: admin
-    developers: push
-
-oss:
-  visibility: public
-  has_issues: true
-  has_discussions: true
-  license_template: apache-2.0
-  topics:
-    - open-source
-  rulesets:
-    - oss-main-protection
-
-internal:
-  visibility: private
-  teams:
-    security: pull
-
 # config/repositories.yml
 terraform-modules:
-  description: "Shared Terraform modules for infrastructure"
+  description: "Shared Terraform modules"
   groups: ["base", "oss"]
-  topics:
-    - terraform
-    - infrastructure
-  homepage_url: "https://acme-corp.github.io/terraform-modules"
+  topics: ["terraform"]
 
 api-gateway:
-  description: "Internal API gateway service"
+  description: "Internal API gateway"
   groups: ["base", "internal"]
-  has_wiki: true
-  rulesets:
-    - strict-main-protection
 
-# config/rulesets.yml
-oss-main-protection:
-  target: branch
-  enforcement: active
-  conditions:
-    ref_name:
-      include: ["~DEFAULT_BRANCH"]
-  rules:
-    - type: pull_request
-      parameters:
-        required_approving_review_count: 1
-        dismiss_stale_reviews_on_push: true
-    - type: required_status_checks
-      parameters:
-        required_checks:
-          - context: "ci"
+docs-site:
+  description: "Documentation website"
+  groups: ["base", "oss"]
+  homepage_url: "https://docs.example.com"
 ```
 
 ## Documentation
