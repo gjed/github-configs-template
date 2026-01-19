@@ -20,7 +20,7 @@ Manage your GitHub organization's repositories as code using Terraform and YAML 
 
 ```text
                                     ┌─────────────────────┐
-                                    │         GitHub      │
+                                    │       GitHub        │
                                     │                     │
 ┌─────────────────┐                 │  ┌──────────────┐   │
 │ repositories.yml│                 │  │ tf-modules   │   │
