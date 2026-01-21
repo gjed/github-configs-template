@@ -18,17 +18,18 @@ oss:
   has_wiki: true
   has_issues: true
   has_projects: false
-  has_downloads: true
-  has_discussions: false
-  allow_merge_commit: false
+  has_downloads: false
+  has_discussions: true
+  allow_merge_commit: true
   allow_squash_merge: true
   allow_rebase_merge: true
   allow_auto_merge: false
   allow_update_branch: true
   delete_branch_on_merge: true
   web_commit_signoff_required: true
+  require_linear_history: true
   topics:
-    - open-source
+    - oss
   rulesets:
     - oss-main-protection
   # Webhooks: reference by name from config/webhook/ or define inline
