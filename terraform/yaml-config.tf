@@ -93,10 +93,20 @@ locals {
   ]...)
 
   # Load and merge ruleset configs from config/ruleset/ directory
+  # Note: templates.yml is loaded separately and not merged with rulesets_config
   rulesets_config = merge([
     for f in sort(tolist(local.ruleset_files)) :
     yamldecode(file("${local.ruleset_config_path}/${f}"))
+    if f != "templates.yml" # Exclude templates from regular rulesets
   ]...)
+
+  # Load ruleset templates from config/ruleset/default-rulesets.yml
+  # Templates are referenced by name in repository/group configurations
+  # This file now contains both templates and default rulesets
+  ruleset_templates = try(
+    yamldecode(file("${local.ruleset_config_path}/default-rulesets.yml")),
+    {}
+  )
 
   # Extract values from YAML
   github_org    = local.common_config.organization
@@ -159,21 +169,47 @@ locals {
 
   # Merge rulesets from all groups for each repository
   # Rulesets are collected from groups, then repo-specific rulesets are added
+  # Supports both direct ruleset names and template references with overrides
   # Note: On free tier, rulesets are skipped for private repositories
   merged_rulesets = {
-    for repo_name, repo_config in local.repos_yaml : repo_name => {
-      for ruleset_name in distinct(flatten(concat(
-        # Collect ruleset names from all groups
+    for repo_name, repo_config in local.repos_yaml : repo_name => merge([
+      for idx, ruleset_entry in flatten(concat(
+        # Collect ruleset entries from all groups
         [
           for group_name in repo_config.groups :
           lookup(lookup(local.config_groups, group_name, {}), "rulesets", [])
         ],
         # Add repo-specific rulesets
         [lookup(repo_config, "rulesets", [])]
-      ))) :
-      ruleset_name => lookup(local.rulesets_config, ruleset_name, null)
-      if lookup(local.rulesets_config, ruleset_name, null) != null
-    }
+        )) : {
+        # Generate a unique key for this ruleset
+        # For templates, use "tpl-<template_name>-<idx>" to avoid collisions
+        # For direct references, use the ruleset name as-is
+        (try(ruleset_entry.template, null) != null ?
+          "tpl-${ruleset_entry.template}-${idx}" :
+          tostring(ruleset_entry)
+          ) = (
+          # If entry is a map with 'template' key, resolve from templates
+          try(ruleset_entry.template, null) != null ? (
+            # Validate template exists
+            lookup(local.ruleset_templates, ruleset_entry.template, null) != null ? (
+              # Merge template base with any inline overrides
+              merge(
+                local.ruleset_templates[ruleset_entry.template],
+                # Exclude 'template' key from overrides
+                {
+                  for k, v in ruleset_entry : k => v
+                  if k != "template"
+                }
+              )
+            ) : null # Template doesn't exist - will be filtered out
+            ) : (
+            # Direct ruleset name reference (existing behavior)
+            lookup(local.rulesets_config, ruleset_entry, null)
+          )
+        )
+      }
+    ]...)
   }
 
   # Merge actions configuration from all groups for each repository
@@ -384,6 +420,25 @@ locals {
       }
     } : null
   }
+  # Validate that all template references exist
+  # Collects any invalid template references across all repos and groups
+  # Note: ruleset_entry can be either a string (direct reference) or an object (template reference)
+  invalid_template_refs = flatten([
+    for repo_name, repo_config in local.repos_yaml : [
+      for ruleset_entry in flatten(concat(
+        [
+          for group_name in repo_config.groups :
+          lookup(lookup(local.config_groups, group_name, {}), "rulesets", [])
+        ],
+        [lookup(repo_config, "rulesets", [])]
+        )) : {
+        repo     = repo_name
+        template = ruleset_entry.template
+      }
+      # Only validate if it's an object with a template key (not a direct string reference)
+      if can(ruleset_entry.template) && try(ruleset_entry.template, null) != null && lookup(local.ruleset_templates, ruleset_entry.template, null) == null
+    ]
+  ])
 
   # Calculate effective visibility for each repository (needed for ruleset filtering)
   repo_visibility = {
@@ -395,7 +450,7 @@ locals {
   # On free tier, rulesets are not available for private repositories
   effective_rulesets = {
     for repo_name, rulesets in local.merged_rulesets : repo_name =>
-    (local.rulesets_require_paid_for_private && local.repo_visibility[repo_name] != "public") ? {} : rulesets
+    (local.rulesets_require_paid_for_private && local.repo_visibility[repo_name] != "public") ? tomap({}) : rulesets
   }
 
   # Track which repos have rulesets skipped due to subscription limitations
@@ -458,4 +513,20 @@ locals {
       actions = local.effective_actions[repo_name]
     }
   }
+}
+
+# Validate that all referenced templates exist
+check "template_references" {
+  assert {
+    condition = length(local.invalid_template_refs) == 0
+    error_message = <<-EOT
+      Invalid template references found:
+      ${join("\n      ", [
+    for ref in local.invalid_template_refs :
+    "Repository '${ref.repo}' references template '${ref.template}' which does not exist in config/ruleset/templates.yml"
+])}
+
+      Available templates: ${join(", ", keys(local.ruleset_templates))}
+    EOT
+}
 }

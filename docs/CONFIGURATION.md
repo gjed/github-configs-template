@@ -235,6 +235,134 @@ ruleset-name:
         required_review_thread_resolution: false
 ```
 
+### Ruleset Templates
+
+Templates provide reusable ruleset configurations that can be referenced by name in repository or group
+configurations. Templates and default rulesets are defined in `config/ruleset/default-rulesets.yml`.
+
+#### Default Templates
+
+Two template rulesets are provided:
+
+**strict-main** - Strict protection for main branch:
+
+- 2 required approving reviews
+- Code owner review required
+- Required linear history
+- Targets default branch
+
+**relaxed-devel** - Lighter protection for devel branch:
+
+- 1 required approving review
+- Targets `devel` branch only
+
+#### Default Rulesets
+
+The following pre-configured rulesets are available for direct use:
+
+**oss-main-protection** - Basic OSS main branch protection:
+
+- 1 required approving review
+- Required linear history
+- No bypass actors
+- Targets default branch
+
+**oss-main-bypass** - OSS main with maintainer bypass:
+
+- 1 required approving review
+- Maintainers and admins can bypass
+- Suitable for OSS projects requiring flexibility
+- Targets default branch
+
+**internal-main-protection** - Internal repository protection:
+
+- Prevents deletion and force pushes
+- Required linear history
+- No pull request requirements
+- Requires paid GitHub plan for private repos
+- Targets default branch
+
+**tag-protection** - Version tag protection:
+
+- Prevents deletion and updates
+- Targets `v*` tags (e.g., v1.0.0, v2.1.3)
+
+#### Using Templates
+
+Reference templates in repository or group configurations:
+
+```yaml
+# config/repository/my-repo.yml
+my-app:
+  description: "My Application"
+  groups: []
+  rulesets:
+    - template: strict-main        # Use template as-is
+    - template: relaxed-devel      # Use another template
+    - my-custom-ruleset            # Mix with direct ruleset references
+```
+
+#### Template Overrides
+
+You can override template settings by providing the complete configuration sections. Note that overrides
+replace the entire section from the template (e.g., providing `rules` replaces all rules):
+
+```yaml
+# config/repository/critical-app.yml
+critical-service:
+  description: "Critical Service"
+  groups: []
+  rulesets:
+    - template: strict-main
+      # Override to require 3 approvals instead of 2
+      # Note: Must include all rules you want, as this replaces the template's rules
+      rules:
+        - type: deletion
+        - type: non_fast_forward
+        - type: required_linear_history
+        - type: pull_request
+          parameters:
+            required_approving_review_count: 3  # Changed from 2
+            dismiss_stale_reviews_on_push: true
+            require_code_owner_review: true
+            require_last_push_approval: false
+```
+
+You can also override other template fields like `enforcement`, `target`, or `conditions`:
+
+```yaml
+rulesets:
+  - template: strict-main
+    enforcement: disabled  # Override enforcement level
+    conditions:            # Override branch targeting
+      ref_name:
+        include:
+          - "refs/heads/main"
+          - "refs/heads/production"
+```
+
+#### Creating Custom Templates
+
+Add your own templates to `config/ruleset/default-rulesets.yml`:
+
+```yaml
+# config/ruleset/default-rulesets.yml
+my-custom-template:
+  target: branch
+  enforcement: active
+  conditions:
+    ref_name:
+      include:
+        - "refs/heads/feature/*"
+  rules:
+    - type: pull_request
+      parameters:
+        required_approving_review_count: 1
+
+strict-main:
+  # ... existing templates ...
+```
+
 ### Available Rule Types
 
 | Rule Type | Description | Has Parameters |

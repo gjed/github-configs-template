@@ -1,0 +1,32 @@
+# Test repository configuration to verify template functionality
+# These repositories test both template usage and direct ruleset references
+
+test-strict-main:
+  description: "Test repository using strict-main template"
+  visibility: public
+  groups: []
+  rulesets:
+    - template: strict-main
+
+test-relaxed-devel:
+  description: "Test repository using relaxed-devel template"
+  visibility: public
+  groups: []
+  rulesets:
+    - template: relaxed-devel
+
+test-oss-bypass:
+  description: "Test repository using oss-main-bypass ruleset"
+  visibility: public
+  groups: []
+  rulesets:
+    - oss-main-bypass
+
+test-mixed:
+  description: "Test repository mixing templates and direct rulesets"
+  visibility: public
+  groups: []
+  rulesets:
+    - template: strict-main
+    - oss-main-bypass
+    - tag-protection

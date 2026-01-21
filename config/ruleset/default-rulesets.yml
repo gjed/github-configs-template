@@ -1,5 +1,19 @@
-# Default Repository Rulesets
+# Default Repository Rulesets and Templates
 # Define reusable rulesets that can be applied to config groups or individual repositories
+#
+# Rulesets can be:
+# 1. Applied directly by reference (e.g., rulesets: [oss-main-protection])
+# 2. Used as templates with the 'template' key (e.g., template: strict-main)
+#
+# When using templates in repositories.yml or groups.yml:
+#   rulesets:
+#     - template: strict-main
+#     - template: relaxed-devel
+#       # Override template settings (optional)
+#       rules:
+#         - type: pull_request
+#           parameters:
+#             required_approving_review_count: 2
 #
 # Supported rule types:
 # - deletion: Prevent branch/tag deletion
@@ -13,7 +27,59 @@
 # - commit_message_pattern: Enforce commit message patterns
 # - branch_name_pattern: Enforce branch naming patterns
 
+# ============================================================================
+# TEMPLATE RULESETS
+# Pre-built configurations that can be referenced by name in repository configs
+# ============================================================================
+
+# Strict main branch protection
+# Enforces 2 required approvals, code owner review, and linear history
+strict-main:
+  target: branch
+  enforcement: active
+  conditions:
+    ref_name:
+      include:
+        - "~DEFAULT_BRANCH"
+      exclude: []
+  rules:
+    - type: deletion
+    - type: non_fast_forward
+    - type: required_linear_history
+    - type: pull_request
+      parameters:
+        required_approving_review_count: 2
+        dismiss_stale_reviews_on_push: true
+        require_code_owner_review: true
+        require_last_push_approval: false
+
+# Relaxed devel branch protection
+# Enforces 1 required approval for devel branch
+relaxed-devel:
+  target: branch
+  enforcement: active
+  conditions:
+    ref_name:
+      include:
+        - "refs/heads/devel"
+      exclude: []
+  rules:
+    - type: deletion
+    - type: non_fast_forward
+    - type: pull_request
+      parameters:
+        required_approving_review_count: 1
+        dismiss_stale_reviews_on_push: true
+        require_code_owner_review: false
+        require_last_push_approval: false
+
+# ============================================================================
+# DEFAULT RULESETS
+# Standard rulesets for common repository configurations
+# ============================================================================
+
 # Main branch protection for open source repositories
+# Basic protection requiring 1 approval and linear history
 oss-main-protection:
   target: branch
   enforcement: active
@@ -26,6 +92,34 @@ oss-main-protection:
     - type: deletion
     - type: non_fast_forward
     - type: required_linear_history
+    - type: pull_request
+      parameters:
+        required_approving_review_count: 1
+        dismiss_stale_reviews_on_push: true
+        require_code_owner_review: false
+        require_last_push_approval: false
+
+# Main branch protection for OSS with maintainer bypass
+# Allows repository maintainers and admins to bypass branch protection
+# Suitable for open source projects where maintainers need flexibility
+oss-main-bypass:
+  target: branch
+  enforcement: active
+  bypass_actors:
+    - actor_type: RepositoryRole
+      actor_id: 2  # Maintain role
+      bypass_mode: always
+    - actor_type: RepositoryRole
+      actor_id: 5  # Admin role
+      bypass_mode: always
+  conditions:
+    ref_name:
+      include:
+        - "~DEFAULT_BRANCH"
+      exclude: []
+  rules:
+    - type: deletion
+    - type: non_fast_forward
     - type: pull_request
       parameters:
         required_approving_review_count: 1
@@ -48,28 +142,8 @@ internal-main-protection:
     - type: non_fast_forward
     - type: required_linear_history
 
-# Release branch protection (example)
-release-branch-protection:
-  target: branch
-  enforcement: active
-  conditions:
-    ref_name:
-      include:
-        - "refs/heads/release/*"
-        - "refs/heads/v*"
-      exclude: []
-  rules:
-    - type: deletion
-    - type: non_fast_forward
-    - type: required_linear_history
-    - type: pull_request
-      parameters:
-        required_approving_review_count: 2
-        dismiss_stale_reviews_on_push: true
-        require_code_owner_review: true
-        require_last_push_approval: true
-
-# Tag protection (example)
+# Tag protection for version tags
+# Prevents deletion and updates to version tags (v*)
 tag-protection:
   target: tag
   enforcement: active
