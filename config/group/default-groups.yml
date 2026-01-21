@@ -1,4 +1,4 @@
-# Configuration Groups
+# Default Configuration Groups
 # Define standard settings for repository types that can be combined
 # Groups are applied sequentially - later groups override single values, lists are merged
 

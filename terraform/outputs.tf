@@ -36,3 +36,28 @@ output "subscription_warnings" {
     tier    = local.subscription
   } : null
 }
+
+# Output warning when duplicate keys are detected across config files
+# Duplicates cause shallow merge - the entire definition from the later file wins
+output "duplicate_key_warnings" {
+  description = "Warnings about duplicate keys in config files (shallow merge - later file wins entirely)"
+  value = (
+    length(local.duplicate_repository_keys) > 0 ||
+    length(local.duplicate_group_keys) > 0 ||
+    length(local.duplicate_ruleset_keys) > 0
+    ) ? {
+    message = "WARNING: Duplicate keys detected across config files. Later files (alphabetically) completely override earlier ones - no deep merge!"
+    repositories = length(local.duplicate_repository_keys) > 0 ? {
+      for key, files in local.duplicate_repository_keys :
+      key => "defined in: ${join(", ", files)} - using: ${files[length(files) - 1]}"
+    } : null
+    groups = length(local.duplicate_group_keys) > 0 ? {
+      for key, files in local.duplicate_group_keys :
+      key => "defined in: ${join(", ", files)} - using: ${files[length(files) - 1]}"
+    } : null
+    rulesets = length(local.duplicate_ruleset_keys) > 0 ? {
+      for key, files in local.duplicate_ruleset_keys :
+      key => "defined in: ${join(", ", files)} - using: ${files[length(files) - 1]}"
+    } : null
+  } : null
+}

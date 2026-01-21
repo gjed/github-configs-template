@@ -1,10 +1,102 @@
 # Load and parse YAML configuration
 locals {
-  # Read the YAML configuration files from config/ directory
-  common_config   = yamldecode(file("${path.module}/../config/config.yml"))
-  groups_config   = yamldecode(file("${path.module}/../config/groups.yml"))
-  repos_config    = yamldecode(file("${path.module}/../config/repositories.yml"))
-  rulesets_config = yamldecode(file("${path.module}/../config/rulesets.yml"))
+  # Configuration directory paths
+  config_base_path       = "${path.module}/../config"
+  repository_config_path = "${local.config_base_path}/repository"
+  group_config_path      = "${local.config_base_path}/group"
+  ruleset_config_path    = "${local.config_base_path}/ruleset"
+
+  # Read common config (single file - not splittable)
+  common_config = yamldecode(file("${local.config_base_path}/config.yml"))
+
+  # Helper: Load and merge all YAML files from a directory
+  # Files are sorted alphabetically - later files override earlier ones for duplicate keys
+  repository_files = fileset(local.repository_config_path, "*.yml")
+  group_files      = fileset(local.group_config_path, "*.yml")
+  ruleset_files    = fileset(local.ruleset_config_path, "*.yml")
+
+  # Load individual YAML files (for duplicate detection)
+  repository_configs_by_file = {
+    for f in sort(tolist(local.repository_files)) :
+    f => yamldecode(file("${local.repository_config_path}/${f}"))
+  }
+  group_configs_by_file = {
+    for f in sort(tolist(local.group_files)) :
+    f => yamldecode(file("${local.group_config_path}/${f}"))
+  }
+  ruleset_configs_by_file = {
+    for f in sort(tolist(local.ruleset_files)) :
+    f => yamldecode(file("${local.ruleset_config_path}/${f}"))
+  }
+
+  # Detect duplicate keys across files
+  # Build a map of key -> list of files for each config type
+  repo_key_occurrences = {
+    for key in distinct(flatten([
+      for file, config in local.repository_configs_by_file :
+      config != null ? keys(config) : []
+    ])) :
+    key => [
+      for file, config in local.repository_configs_by_file :
+      file if config != null && contains(keys(config), key)
+    ]
+  }
+
+  group_key_occurrences = {
+    for key in distinct(flatten([
+      for file, config in local.group_configs_by_file :
+      config != null ? keys(config) : []
+    ])) :
+    key => [
+      for file, config in local.group_configs_by_file :
+      file if config != null && contains(keys(config), key)
+    ]
+  }
+
+  ruleset_key_occurrences = {
+    for key in distinct(flatten([
+      for file, config in local.ruleset_configs_by_file :
+      config != null ? keys(config) : []
+    ])) :
+    key => [
+      for file, config in local.ruleset_configs_by_file :
+      file if config != null && contains(keys(config), key)
+    ]
+  }
+
+  # Filter to only duplicates (appearing in more than one file)
+  duplicate_repository_keys = {
+    for key, files in local.repo_key_occurrences :
+    key => files if length(files) > 1
+  }
+
+  duplicate_group_keys = {
+    for key, files in local.group_key_occurrences :
+    key => files if length(files) > 1
+  }
+
+  duplicate_ruleset_keys = {
+    for key, files in local.ruleset_key_occurrences :
+    key => files if length(files) > 1
+  }
+
+  # Load and merge repository configs from config/repository/ directory
+  repos_config = merge([
+    for f in sort(tolist(local.repository_files)) :
+    yamldecode(file("${local.repository_config_path}/${f}"))
+  ]...)
+
+  # Load and merge group configs from config/group/ directory
+  groups_config = merge([
+    for f in sort(tolist(local.group_files)) :
+    yamldecode(file("${local.group_config_path}/${f}"))
+  ]...)
+
+  # Load and merge ruleset configs from config/ruleset/ directory
+  rulesets_config = merge([
+    for f in sort(tolist(local.ruleset_files)) :
+    yamldecode(file("${local.ruleset_config_path}/${f}"))
+  ]...)
 
   # Extract values from YAML
   github_org    = local.common_config.organization

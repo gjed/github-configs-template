@@ -4,13 +4,59 @@ Complete reference for all configuration options.
 
 ## File Structure
 
+Configuration uses a **mandatory directory structure** for repositories, groups, and rulesets. Each
+directory can contain multiple `.yml` files that are loaded and merged alphabetically.
+
 ```text
 config/
-├── config.yml        # Organization and global settings
-├── groups.yml        # Configuration groups
-├── repositories.yml  # Repository definitions
-└── rulesets.yml      # Ruleset definitions
+├── config.yml              # Organization and global settings (single file)
+├── repository/             # Repository definitions (directory - mandatory)
+│   ├── default-repositories.yml
+│   ├── frontend.yml
+│   └── backend.yml
+├── group/                  # Configuration groups (directory - mandatory)
+│   ├── default-groups.yml
+│   └── custom-groups.yml
+└── ruleset/                # Ruleset definitions (directory - mandatory)
+    ├── default-rulesets.yml
+    └── custom-rulesets.yml
 ```
+
+### Directory Loading Behavior
+
+- All `.yml` files within each directory are loaded and merged alphabetically
+- Later files (alphabetically) override earlier ones for duplicate keys
+- Empty directories result in empty configuration maps
+- **Missing directories will cause Terraform to fail** with an error
+
+### Important: Shallow Merge Warning
+
+When the same key (e.g., repository name, group name, or ruleset name) appears in multiple files,
+**the entire definition is replaced, not merged**. This is a shallow merge behavior.
+
+**Example of problematic configuration:**
+
+```yaml
+# config/repository/a-frontend.yml
+my-repo:
+  description: "My repository"
+  visibility: public
+  topics:
+    - frontend
+```
+
+```yaml
+# config/repository/b-backend.yml
+my-repo:
+  description: "Updated description"
+  has_wiki: true
+```
+
+**Result:** `my-repo` will only have `description` and `has_wiki` from `b-backend.yml`.
+The `visibility` and `topics` from `a-frontend.yml` are **completely lost**.
+
+**Best practice:** Define each repository, group, or ruleset in only one file. Use file organization
+for logical grouping (e.g., by team or project), not for splitting a single entity's configuration.
 
 ## config.yml
 
@@ -32,12 +78,14 @@ defaults:
   # ... (see Repository Settings below)
 ```
 
-## groups.yml
+## config/group/ Directory
 
-Named configuration groups that repositories can inherit from.
+Named configuration groups that repositories can inherit from. Each `.yml` file in this directory
+defines one or more groups.
 
 ```yaml
-group-name:
+# config/group/oss.yml
+oss:
   # All repository settings (see below)
   visibility: public
   has_issues: true
@@ -70,12 +118,15 @@ When a repository uses multiple groups:
 Example:
 
 ```yaml
-# groups.yml
+# config/group/base.yml
 base:
   topics: ["managed"]
   teams:
     devops: admin
+```
 
+```yaml
+# config/group/oss.yml
 oss:
   topics: ["open-source"]
   teams:
@@ -83,7 +134,7 @@ oss:
 ```
 
 ```yaml
-# repositories.yml
+# config/repository/my-repo.yml
 my-repo:
   groups: ["base", "oss"]
   # Results in:
@@ -91,11 +142,12 @@ my-repo:
   # teams: {devops: admin, community: push}
 ```
 
-## repositories.yml
+## config/repository/ Directory
 
-Individual repository definitions.
+Individual repository definitions. Each `.yml` file in this directory defines one or more repositories.
 
 ```yaml
+# config/repository/frontend.yml
 repository-name:
   # Required
   description: "Repository description"
@@ -144,11 +196,12 @@ All available repository settings:
 | `collaborators` | map | `{}` | Collaborator permissions |
 | `rulesets` | list | `[]` | Ruleset names to apply |
 
-## rulesets.yml
+## config/ruleset/ Directory
 
-Reusable ruleset definitions.
+Reusable ruleset definitions. Each `.yml` file in this directory defines one or more rulesets.
 
 ```yaml
+# config/ruleset/branch-protection.yml
 ruleset-name:
   target: branch        # branch or tag
   enforcement: active   # active, evaluate, or disabled
@@ -249,7 +302,7 @@ ruleset-name:
 ### Open Source Project
 
 ```yaml
-# repositories.yml
+# config/repository/awesome-library.yml
 awesome-library:
   description: "An awesome open source library"
   groups: ["base", "oss"]
@@ -262,7 +315,7 @@ awesome-library:
 ### Internal Tool with Custom Settings
 
 ```yaml
-# repositories.yml
+# config/repository/internal-tool.yml
 internal-tool:
   description: "Internal automation tool"
   groups: ["base", "internal"]
@@ -275,7 +328,7 @@ internal-tool:
 ### Repository with Multiple Rulesets
 
 ```yaml
-# repositories.yml
+# config/repository/critical-service.yml
 critical-service:
   description: "Critical production service"
   groups: ["base", "internal"]
