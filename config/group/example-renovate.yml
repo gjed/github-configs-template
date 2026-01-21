@@ -1,0 +1,398 @@
+# ============================================================================
+# Renovate Configuration Examples
+# ============================================================================
+# This file contains example group configurations for Renovate Bot.
+# Copy groups to your groups.yml and customize as needed.
+#
+# Renovate is a feature-rich dependency update tool with:
+# - Support for 70+ package managers and platforms
+# - Advanced automerge capabilities
+# - Highly customizable rules and schedules
+# - Monorepo-friendly grouping
+# - JSON/JSON5 configuration format
+#
+# For full documentation: https://docs.renovatebot.com/
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Basic Renovate Setup
+# ----------------------------------------------------------------------------
+# Use this group for standard Renovate configuration with recommended defaults.
+# Good starting point for most projects.
+use-renovate:
+  renovate:
+    # JSON Schema for IDE autocomplete/validation
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+
+    # Extends allow inheriting from preset configurations
+    # See: https://docs.renovatebot.com/presets-default/
+    extends:
+      - "config:recommended"  # Renovate's recommended baseline config
+
+    # Labels to add to all Renovate PRs
+    labels:
+      - dependencies
+
+    # Rate limiting to avoid overwhelming CI/CD systems
+    prHourlyLimit: 5        # Max PRs created per hour (0 = unlimited)
+    prConcurrentLimit: 10   # Max open PRs at once (0 = unlimited)
+
+    # Additional commonly used options (uncomment to use):
+    # schedule:               # When to check for updates
+    #   - "after 10pm every weekday"
+    #   - "before 5am every weekday"
+    #   - "every weekend"
+    # timezone: "America/New_York"
+
+    # assignees:              # Auto-assign PRs
+    #   - octocat
+    # reviewers:              # Request reviews
+    #   - octocat
+
+    # ignorePresets:          # Disable specific presets from extends
+    #   - ":ignoreModulesAndTests"
+
+    # rangeStrategy: "bump"   # How to update version ranges
+    #                         # Options: auto, pin, bump, replace, widen, update-lockfile
+
+    # semanticCommits: "enabled"  # Use conventional commits
+    # commitMessagePrefix: "chore(deps):"
+
+    # dependencyDashboard: true   # Create issue with update status
+    # dependencyDashboardTitle: "Dependency Updates"
+
+# ----------------------------------------------------------------------------
+# Renovate with Automerge
+# ----------------------------------------------------------------------------
+# Use this group to automatically merge minor and patch updates.
+# Requires branch protection rules to be configured appropriately.
+use-renovate-automerge:
+  renovate:
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+    extends:
+      - "config:recommended"
+      - ":automergeMinor"     # Enable automerge for minor/patch
+      # Other useful automerge presets:
+      # - ":automergePatch"   # Only patch updates
+      # - ":automergeDigest"  # Docker digests, git SHAs
+      # - ":automergeMinorAndPatch"  # Alternative to :automergeMinor
+
+    labels:
+      - dependencies
+      - automerge
+
+    # Package rules allow fine-grained control per dependency type
+    packageRules:
+      - matchUpdateTypes:
+          - minor
+          - patch
+        automerge: true           # Enable automerge
+        automergeType: pr         # Merge via PR (vs branch)
+        automergeStrategy: squash # Merge strategy: merge, squash, rebase, fast-forward
+
+        # Require passing CI before automerge
+        # ignoreTests: false      # Don't automerge if tests fail
+
+        # Additional timing controls:
+        # minimumReleaseAge: "3 days"  # Wait after release before merging
+        # internalChecksFilter: "strict"  # Wait for all checks
+
+    # Security updates - always automerge quickly
+    # vulnerabilityAlerts:
+    #   labels:
+    #     - security
+    #   automerge: true
+    #   schedule: "at any time"
+
+# ----------------------------------------------------------------------------
+# Renovate for Monorepos
+# ----------------------------------------------------------------------------
+# Use this group for monorepo projects with multiple package.json files
+# or when you want to group related packages together.
+use-renovate-monorepo:
+  renovate:
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+    extends:
+      - "config:recommended"
+      - "group:monorepos"         # Group known monorepo packages together
+      # Other useful monorepo presets:
+      # - "monorepo:react"        # React ecosystem
+      # - "monorepo:babel"        # Babel ecosystem
+      # - "monorepo:vue"          # Vue ecosystem
+      # - "monorepo:angular"      # Angular ecosystem
+      # - "monorepo:jest"         # Jest ecosystem
+
+    labels:
+      - dependencies
+
+    # Ignore common paths that shouldn't be scanned
+    ignorePaths:
+      - "**/node_modules/**"
+      - "**/bower_components/**"
+      - "**/vendor/**"
+      - "**/examples/**"
+      - "**/test/**"
+      - "**/tests/**"
+
+    # Custom grouping for your monorepo structure
+    # packageRules:
+    #   - matchPaths:
+    #       - "packages/frontend/**"
+    #     groupName: "frontend dependencies"
+    #     labels:
+    #       - frontend
+    #
+    #   - matchPaths:
+    #       - "packages/backend/**"
+    #     groupName: "backend dependencies"
+    #     labels:
+    #       - backend
+
+# ----------------------------------------------------------------------------
+# Advanced Configuration Examples
+# ----------------------------------------------------------------------------
+
+# Renovate with Custom Package Rules
+# use-renovate-custom-rules:
+#   renovate:
+#     "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+#     extends:
+#       - "config:recommended"
+#
+#     packageRules:
+#       # Pin development dependencies
+#       - matchDepTypes:
+#           - devDependencies
+#         rangeStrategy: pin
+#
+#       # Group AWS SDK packages
+#       - matchPackagePrefixes:
+#           - "@aws-sdk/"
+#         groupName: "AWS SDK"
+#         schedule:
+#           - "before 5am on monday"
+#
+#       # Separate major updates
+#       - matchUpdateTypes:
+#           - major
+#         labels:
+#           - major-update
+#         automerge: false
+#         schedule:
+#           - "before 5am on the first day of the month"
+#
+#       # Disable updates for specific packages
+#       - matchPackageNames:
+#           - node
+#           - typescript
+#         enabled: false
+#
+#       # Follow a specific tag for prereleases
+#       - matchPackageNames:
+#           - next
+#         followTag: canary
+
+# Renovate for Docker-focused projects
+# use-renovate-docker:
+#   renovate:
+#     "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+#     extends:
+#       - "config:recommended"
+#       - "docker:enableMajor"      # Include major Docker updates
+#       - "docker:pinDigests"       # Pin image digests
+#
+#     packageRules:
+#       # Separate Docker base images from other dependencies
+#       - matchDatasources:
+#           - docker
+#         matchUpdateTypes:
+#           - major
+#         labels:
+#           - docker
+#           - major-update
+#
+#       # Group Alpine Linux updates
+#       - matchDatasources:
+#           - docker
+#         matchPackageNames:
+#           - alpine
+#         groupName: "alpine"
+
+# Renovate with semantic versioning and conventional commits
+# use-renovate-semantic:
+#   renovate:
+#     "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+#     extends:
+#       - "config:recommended"
+#
+#     semanticCommits: "enabled"
+#
+#     packageRules:
+#       - matchUpdateTypes:
+#           - major
+#         commitMessagePrefix: "feat(deps)!:"
+#         commitMessageSuffix: " [BREAKING]"
+#
+#       - matchUpdateTypes:
+#           - minor
+#         commitMessagePrefix: "feat(deps):"
+#
+#       - matchUpdateTypes:
+#           - patch
+#         commitMessagePrefix: "fix(deps):"
+#
+#       - matchDepTypes:
+#           - devDependencies
+#         commitMessagePrefix: "chore(deps):"
+
+# ----------------------------------------------------------------------------
+# Configuration File Path
+# ----------------------------------------------------------------------------
+# By default, Renovate configuration is stored in renovate.json at the root.
+# You can customize this using renovate_file_path in your repository config:
+#
+# my-repo:
+#   groups:
+#     - use-renovate
+#   renovate_file_path: ".github/renovate.json"  # Custom path
+#   renovate:
+#     extends:
+#       - "config:recommended"
+
+# ----------------------------------------------------------------------------
+# Merge Behavior
+# ----------------------------------------------------------------------------
+# When combining multiple groups (e.g., use-renovate + use-renovate-automerge):
+#
+# - "extends" lists are deduplicated (union of all values)
+# - "packageRules" lists are concatenated (all rules applied in order)
+# - Scalar values (strings, numbers, booleans) are overridden by later groups
+# - Other object properties are merged recursively
+#
+# Example: Combining base Renovate with automerge
+# groups:
+#   - use-renovate           # Adds config:recommended, labels, rate limits
+#   - use-renovate-automerge # Adds :automergeMinor, automerge packageRule
+# Result: All settings from both groups, extends merged, packageRules concatenated
+#
+# Example: Repository-specific override
+# groups:
+#   - use-renovate
+# renovate:  # Repository-level config
+#   prHourlyLimit: 2  # Override group's prHourlyLimit: 5
+#   labels:
+#     - dependencies
+#     - production  # Replaces group's labels entirely (not merged!)
+# Result: prHourlyLimit is 2, only labels: [dependencies, production]
+#
+# Important: Scalar overrides replace entirely. To extend lists, define in one place
+# or use custom groups.
+
+# ----------------------------------------------------------------------------
+# Preset References
+# ----------------------------------------------------------------------------
+# Renovate has 100+ built-in presets. Common ones:
+#
+# Base configurations:
+# - config:base              - Minimal configuration
+# - config:recommended       - Recommended for most projects (includes base)
+# - config:js-lib            - For JavaScript libraries
+# - config:js-app            - For JavaScript applications
+#
+# Automerge presets:
+# - :automergeBranch         - Automerge by pushing to base branch
+# - :automergeDigest         - Automerge digest updates
+# - :automergeLinters        - Automerge linters/formatters
+# - :automergeMinor          - Automerge non-major updates
+# - :automergePatch          - Automerge patch updates only
+# - :automergeRequireAllStatusChecks - Require all checks passing
+#
+# Grouping presets:
+# - group:allNonMajor        - Group all non-major updates
+# - group:monorepos          - Group known monorepo packages
+# - group:recommended        - Renovate's recommended groupings
+#
+# Schedule presets:
+# - schedule:earlyMondays    - Monday before 3am
+# - schedule:weekends        - Weekends only
+# - schedule:monthly         - First day of month
+# - schedule:quarterly       - First day of quarter
+#
+# See full list: https://docs.renovatebot.com/presets-default/
+
+# ----------------------------------------------------------------------------
+# Migration from Manual Configuration
+# ----------------------------------------------------------------------------
+# If you already have renovate.json in your repository:
+#
+# 1. Review existing configuration
+# 2. Extract reusable parts into custom groups in groups.yml
+# 3. Apply group(s) via groups.yml or repositories.yml
+# 4. Add repository-specific overrides if needed
+# 5. Commit and push - Terraform will update the file
+# 6. Review the generated configuration
+#
+# Note: Terraform manages the file - manual edits will be overwritten!
+
+# ----------------------------------------------------------------------------
+# Common Patterns
+# ----------------------------------------------------------------------------
+
+# Pattern: Strict automerge (only with all tests passing)
+# use-renovate-strict-automerge:
+#   renovate:
+#     "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+#     extends:
+#       - "config:recommended"
+#     packageRules:
+#       - matchUpdateTypes:
+#           - patch
+#         automerge: true
+#         automergeType: pr
+#         requiredStatusChecks:
+#           - test
+#           - lint
+#           - build
+
+# Pattern: Separate dependency types
+# use-renovate-separated:
+#   renovate:
+#     "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+#     extends:
+#       - "config:recommended"
+#     packageRules:
+#       - matchDepTypes:
+#           - dependencies
+#         groupName: "production dependencies"
+#         labels:
+#           - production
+#       - matchDepTypes:
+#           - devDependencies
+#         groupName: "development dependencies"
+#         labels:
+#           - development
+
+# Pattern: Pin dependencies for reproducible builds
+# use-renovate-pinned:
+#   renovate:
+#     "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+#     extends:
+#       - "config:recommended"
+#     rangeStrategy: pin
+#     lockFileMaintenance:
+#       enabled: true
+#       schedule:
+#         - "before 5am on monday"
+
+# Pattern: High-frequency updates for active development
+# use-renovate-aggressive:
+#   renovate:
+#     "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+#     extends:
+#       - "config:recommended"
+#     schedule:
+#       - "at any time"
+#     prHourlyLimit: 0  # Unlimited
+#     prConcurrentLimit: 0  # Unlimited
+#     automerge: true
+#     platformAutomerge: true

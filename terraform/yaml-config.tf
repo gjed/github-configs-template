@@ -136,6 +136,177 @@ locals {
   # - team/enterprise: Full ruleset support including push rulesets
   rulesets_require_paid_for_private = contains(["free"], local.subscription)
 
+  # ============================================================================
+  # Dependency Update Configuration Merging
+  # ============================================================================
+
+  # Collect all Dependabot updates from groups for each repository
+  # Updates are merged by package_ecosystem + directory key (unique combination)
+  merged_dependabot_updates = {
+    for repo_name, repo_config in local.repos_yaml : repo_name => {
+      # Create a map keyed by "ecosystem|directory" to enable override behavior
+      for update in flatten([
+        for group_name in repo_config.groups :
+        lookup(lookup(lookup(local.config_groups, group_name, {}), "dependabot", {}), "updates", [])
+      ]) :
+      "${update.package_ecosystem}|${update.directory}" => update
+    }
+  }
+
+  # Get Dependabot version from groups (last group with dependabot wins)
+  merged_dependabot_version = {
+    for repo_name, repo_config in local.repos_yaml : repo_name => coalesce(
+      lookup(lookup(repo_config, "dependabot", {}), "version", null),
+      try(
+        [
+          for group_name in reverse(repo_config.groups) :
+          lookup(lookup(lookup(local.config_groups, group_name, {}), "dependabot", {}), "version", null)
+          if lookup(lookup(local.config_groups, group_name, {}), "dependabot", null) != null
+        ][0],
+        null
+      ),
+      2
+    )
+  }
+
+  # Get Dependabot registries from groups
+  merged_dependabot_registries = {
+    for repo_name, repo_config in local.repos_yaml : repo_name => merge(
+      flatten([
+        for group_name in repo_config.groups : [
+          lookup(lookup(lookup(local.config_groups, group_name, {}), "dependabot", {}), "registries", {})
+        ]
+      ])...
+    )
+  }
+
+  # Merge Dependabot configs from all groups for each repository
+  merged_dependabot = {
+    for repo_name, repo_config in local.repos_yaml : repo_name => (
+      # Check if any group has dependabot config or repo has it directly
+      anytrue([
+        for group_name in repo_config.groups :
+        lookup(local.config_groups, group_name, {}) != null &&
+        lookup(lookup(local.config_groups, group_name, {}), "dependabot", null) != null
+        ]) || lookup(repo_config, "dependabot", null) != null ? {
+        version = local.merged_dependabot_version[repo_name]
+        updates = values(merge(
+          local.merged_dependabot_updates[repo_name],
+          # Add repo-specific updates (keyed for override)
+          {
+            for update in lookup(lookup(repo_config, "dependabot", {}), "updates", []) :
+            "${update.package_ecosystem}|${update.directory}" => update
+          }
+        ))
+        registries = length(keys(merge(
+          local.merged_dependabot_registries[repo_name],
+          lookup(lookup(repo_config, "dependabot", {}), "registries", {})
+          ))) > 0 ? merge(
+          local.merged_dependabot_registries[repo_name],
+          lookup(lookup(repo_config, "dependabot", {}), "registries", {})
+        ) : null
+      } : null
+    )
+  }
+
+  # Collect all Renovate extends from groups for each repository (deduplicated)
+  merged_renovate_extends = {
+    for repo_name, repo_config in local.repos_yaml : repo_name => distinct(flatten([
+      # Collect extends from all groups
+      for group_name in repo_config.groups :
+      lookup(lookup(lookup(local.config_groups, group_name, {}), "renovate", {}), "extends", [])
+    ]))
+  }
+
+  # Collect all Renovate packageRules from groups for each repository (concatenated)
+  merged_renovate_package_rules = {
+    for repo_name, repo_config in local.repos_yaml : repo_name => flatten([
+      # Collect packageRules from all groups (order matters - later rules take precedence in Renovate)
+      for group_name in repo_config.groups :
+      lookup(lookup(lookup(local.config_groups, group_name, {}), "renovate", {}), "packageRules", [])
+    ])
+  }
+
+  # Collect scalar Renovate values from groups (later groups override)
+  merged_renovate_scalars = {
+    for repo_name, repo_config in local.repos_yaml : repo_name => merge(
+      flatten([
+        for group_name in repo_config.groups : [
+          {
+            for key, value in lookup(lookup(local.config_groups, group_name, {}), "renovate", {}) :
+            key => value
+            if !contains(["extends", "packageRules"], key)
+          }
+        ]
+      ])...
+    )
+  }
+
+  # Merge Renovate configs from all groups for each repository
+  merged_renovate = {
+    for repo_name, repo_config in local.repos_yaml : repo_name => (
+      # Check if any group has renovate config or repo has it directly
+      anytrue([
+        for group_name in repo_config.groups :
+        lookup(local.config_groups, group_name, {}) != null &&
+        lookup(lookup(local.config_groups, group_name, {}), "renovate", null) != null
+        ]) || lookup(repo_config, "renovate", null) != null ? merge(
+        # Merge all scalar/simple values from groups (later groups override)
+        local.merged_renovate_scalars[repo_name],
+        # Add merged extends (deduplicated)
+        {
+          extends = distinct(concat(
+            local.merged_renovate_extends[repo_name],
+            lookup(lookup(repo_config, "renovate", {}), "extends", [])
+          ))
+        },
+        # Add merged packageRules (concatenated)
+        {
+          packageRules = concat(
+            local.merged_renovate_package_rules[repo_name],
+            lookup(lookup(repo_config, "renovate", {}), "packageRules", [])
+          )
+        },
+        # Apply repo-level overrides for scalar values
+        {
+          for key, value in lookup(repo_config, "renovate", {}) :
+          key => value
+          if !contains(["extends", "packageRules"], key)
+        }
+      ) : null
+    )
+  }
+
+  # Clean up merged renovate configs - remove empty extends and packageRules
+  effective_renovate = {
+    for repo_name, config in local.merged_renovate : repo_name => (
+      config != null ? {
+        for key, value in config :
+        key => value
+        # Keep the key if:
+        # - It's not extends/packageRules (always keep other keys)
+        # - Or it's extends/packageRules with non-empty values
+        if !contains(["extends", "packageRules"], key) || (try(length(value), 0) > 0)
+      } : null
+    )
+  }
+
+  # Merge renovate_file_path from groups (last group with config wins)
+  merged_renovate_file_path = {
+    for repo_name, repo_config in local.repos_yaml : repo_name => coalesce(
+      lookup(repo_config, "renovate_file_path", null),
+      try(
+        [
+          for group_name in reverse(repo_config.groups) :
+          lookup(lookup(local.config_groups, group_name, {}), "renovate_file_path", null)
+          if lookup(lookup(local.config_groups, group_name, {}), "renovate_file_path", null) != null
+        ][0],
+        null
+      ),
+      "renovate.json"
+    )
+  }
+
   # Merge multiple config groups for each repository
   # Groups are applied sequentially: later groups override single values, lists are merged
   merged_configs = {
@@ -600,6 +771,11 @@ locals {
 
       # Webhooks: merge from all groups + repo-specific webhooks (repo overrides group by name)
       webhooks = local.merged_webhooks[repo_name]
+
+      # Dependency update configurations
+      dependabot         = local.merged_dependabot[repo_name]
+      renovate           = local.effective_renovate[repo_name]
+      renovate_file_path = local.merged_renovate_file_path[repo_name]
     }
   }
 }

@@ -596,3 +596,193 @@ critical-service:
     - release-branch-protection
     - tag-protection
 ```
+
+## Dependency Update Configuration
+
+Manage Dependabot and Renovate configurations through YAML. Configuration files are automatically
+generated in repositories when configured.
+
+For comprehensive examples and additional ecosystems, see:
+
+- `config/example-dependabot.yml` - Dependabot configuration examples
+- `config/example-renovate.yml` - Renovate configuration examples
+
+### Dependabot
+
+Dependabot configuration generates `.github/dependabot.yml` in repositories.
+
+#### Group Configuration
+
+```yaml
+# groups.yml
+use-dependabot:
+  dependabot:
+    version: 2
+    updates:
+      - package_ecosystem: npm
+        directory: "/"
+        schedule:
+          interval: weekly
+          day: monday
+        open_pull_requests_limit: 10
+        groups:
+          minor-and-patch:
+            patterns:
+              - "*"
+            update_types:
+              - minor
+              - patch
+      - package_ecosystem: github-actions
+        directory: "/"
+        schedule:
+          interval: weekly
+```
+
+#### Repository Override
+
+```yaml
+# repositories.yml
+my-app:
+  groups: ["base", "use-dependabot"]
+  # Add additional ecosystems or override schedule
+  dependabot:
+    updates:
+      - package_ecosystem: npm
+        directory: "/"
+        schedule:
+          interval: daily  # Override: daily instead of weekly
+      - package_ecosystem: docker
+        directory: "/"
+        schedule:
+          interval: weekly
+```
+
+#### Available Dependabot Options
+
+| Setting | Type | Description |
+| ------- | ---- | ----------- |
+| `version` | number | Dependabot version (always 2) |
+| `updates` | list | List of update configurations |
+| `registries` | map | Private registry configurations |
+
+##### Update Configuration
+
+| Setting | Type | Description |
+| ------- | ---- | ----------- |
+| `package_ecosystem` | string | Package manager (npm, pip, gomod, docker, etc.) |
+| `directory` | string | Location of package manifest |
+| `schedule.interval` | string | Update frequency: daily, weekly, monthly |
+| `schedule.day` | string | Day for weekly updates (monday, tuesday, etc.) |
+| `schedule.time` | string | Time for updates (HH:MM format) |
+| `schedule.timezone` | string | Timezone for schedule |
+| `open_pull_requests_limit` | number | Max open PRs (default: 5) |
+| `groups` | map | Group updates together |
+| `labels` | list | Labels to add to PRs |
+| `assignees` | list | Users to assign to PRs |
+| `reviewers` | list | Users to request review from |
+| `ignore` | list | Dependencies to ignore |
+| `allow` | list | Dependencies to allow |
+
+#### Merge Behavior
+
+Dependabot updates are merged by `package_ecosystem + directory` key:
+
+- Later groups override earlier groups for the same ecosystem/directory
+- Repository-level updates override group-level updates
+- Different ecosystem/directory combinations are combined
+
+### Renovate
+
+Renovate configuration generates `renovate.json` (or custom path) in repositories.
+
+#### Group Configuration
+
+```yaml
+# groups.yml
+use-renovate:
+  renovate:
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+    extends:
+      - "config:recommended"
+    labels:
+      - dependencies
+    prHourlyLimit: 5
+    prConcurrentLimit: 10
+
+use-renovate-automerge:
+  renovate:
+    extends:
+      - "config:recommended"
+      - ":automergeMinor"
+    packageRules:
+      - matchUpdateTypes:
+          - minor
+          - patch
+        automerge: true
+```
+
+#### Repository Override
+
+```yaml
+# repositories.yml
+my-app:
+  groups: ["base", "use-renovate"]
+  # Add custom package rules
+  renovate:
+    packageRules:
+      - matchPackageNames:
+          - typescript
+        allowedVersions: "5.x"
+      - matchDepTypes:
+          - devDependencies
+        automerge: true
+  # Optional: custom file location
+  renovate_file_path: ".github/renovate.json"
+```
+
+#### Merge Behavior
+
+| Setting | Behavior |
+| ------- | -------- |
+| `extends` | Merged and deduplicated |
+| `packageRules` | Concatenated (later rules take precedence) |
+| All other values | Later groups/repo override |
+
+### Using Both Tools
+
+You can configure both Dependabot and Renovate for the same repository. This is useful for:
+
+- Using Dependabot for GitHub Actions (better integration)
+- Using Renovate for package dependencies (more features)
+- Using Dependabot for security alerts
+
+```yaml
+# repositories.yml
+my-app:
+  groups: ["base", "oss"]
+  dependabot:
+    version: 2
+    updates:
+      - package_ecosystem: github-actions
+        directory: "/"
+        schedule:
+          interval: weekly
+  renovate:
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+    extends:
+      - "config:recommended"
+    enabledManagers:
+      - npm
+      - dockerfile
+```
+
+### Migration from Manual Configuration
+
+If you have existing manual dependency update configurations:
+
+1. **Backup existing configs** before running Terraform
+2. **Import settings** into YAML configuration
+3. **Run `terraform plan`** to preview changes
+4. **Apply changes** - Terraform will overwrite existing files
+
+Note: Terraform-managed files will overwrite any manual changes on each apply.
