@@ -185,3 +185,27 @@ resource "github_repository_ruleset" "this" {
     }
   }
 }
+
+# Manage GitHub Actions permissions for the repository
+# Only created when actions configuration is provided
+# Note: default_workflow_permissions and can_approve_pull_request_reviews are
+# organization-level settings managed via github_actions_organization_workflow_permissions
+resource "github_actions_repository_permissions" "this" {
+  count = var.actions != null ? 1 : 0
+
+  repository = github_repository.this.name
+  enabled    = var.actions.enabled
+
+  # Which actions are allowed to run
+  allowed_actions = var.actions.allowed_actions
+
+  # Configuration for "selected" allowed_actions policy
+  dynamic "allowed_actions_config" {
+    for_each = var.actions.allowed_actions == "selected" && var.actions.allowed_actions_config != null ? [var.actions.allowed_actions_config] : []
+    content {
+      github_owned_allowed = allowed_actions_config.value.github_owned_allowed
+      verified_allowed     = allowed_actions_config.value.verified_allowed
+      patterns_allowed     = allowed_actions_config.value.patterns_allowed
+    }
+  }
+}

@@ -1,6 +1,7 @@
 # Default Configuration Groups
 # Define standard settings for repository types that can be combined
 # Groups are applied sequentially - later groups override single values, lists are merged
+# For actions.allowed_actions_config.patterns_allowed, lists are merged from all groups
 
 # Base configuration applied to all repos in your organization
 # Customize this with your organization's default teams
@@ -53,3 +54,17 @@ internal:
   # Uncomment below if you have a paid GitHub plan
   # rulesets:
   #   - internal-main-protection
+
+# Example: Secure Actions group
+# Apply this group to repositories that need restricted Actions permissions
+# Actions patterns are merged from all groups - this enables supply chain security
+# secure-actions:
+#   actions:
+#     enabled: true
+#     allowed_actions: selected
+#     allowed_actions_config:
+#       github_owned_allowed: true    # Allow github/* actions
+#       verified_allowed: true        # Allow verified marketplace actions
+#       patterns_allowed:             # Additional allowed patterns
+#         - "actions/*"               # Official GitHub actions
+#         - "your-org/*"              # Your organization's actions

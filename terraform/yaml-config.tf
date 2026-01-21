@@ -104,6 +104,10 @@ locals {
   config_groups = local.groups_config
   repos_yaml    = local.repos_config
 
+  # Organization-level actions configuration
+  # Defaults to null if not specified (no org-level actions resource created)
+  org_actions_config = lookup(local.common_config, "actions", null)
+
   # Subscription tier feature availability
   # - free: Rulesets only work on public repositories
   # - pro: Rulesets work on public and private repositories
@@ -170,6 +174,215 @@ locals {
       ruleset_name => lookup(local.rulesets_config, ruleset_name, null)
       if lookup(local.rulesets_config, ruleset_name, null) != null
     }
+  }
+
+  # Merge actions configuration from all groups for each repository
+  # Actions config uses deep merge: scalar values override, lists are merged
+  # Secure defaults: allowed_actions defaults to "all" to match GitHub's default
+  # Merge actions patterns_allowed from all groups + repo-specific patterns
+  # Lists are merged (deduplicated) rather than overridden
+  merged_actions_patterns = {
+    for repo_name, repo_config in local.repos_yaml : repo_name => distinct(flatten(concat(
+      # Collect patterns from all groups
+      [
+        for group_name in repo_config.groups :
+        lookup(
+          lookup(
+            lookup(local.config_groups, group_name, {}),
+            "actions",
+            {}
+          ),
+          "allowed_actions_config",
+          {}
+          ) != {} ? lookup(
+          lookup(
+            lookup(local.config_groups, group_name, {}),
+            "actions",
+            {}
+          ),
+          "allowed_actions_config",
+          null
+          ) != null ? lookup(
+          lookup(
+            lookup(
+              lookup(local.config_groups, group_name, {}),
+              "actions",
+              {}
+            ),
+            "allowed_actions_config",
+            {}
+          ),
+          "patterns_allowed",
+          []
+        ) : [] : []
+      ],
+      # Add repo-specific patterns
+      lookup(repo_config, "actions", null) != null && lookup(lookup(repo_config, "actions", {}), "allowed_actions_config", null) != null ? [
+        lookup(
+          lookup(
+            lookup(repo_config, "actions", {}),
+            "allowed_actions_config",
+            {}
+          ),
+          "patterns_allowed",
+          []
+        )
+      ] : []
+    )))
+  }
+
+  # Determine effective actions config for each repository
+  # This merges group configs with repo-specific overrides and applies secure defaults
+  effective_actions = {
+    for repo_name, repo_config in local.repos_yaml : repo_name => (
+      # Check if ANY actions config exists in groups or repo
+      lookup(repo_config, "actions", null) != null ||
+      anytrue([
+        for group_name in repo_config.groups :
+        lookup(lookup(local.config_groups, group_name, {}), "actions", null) != null
+      ])
+      ) ? {
+      # Enabled: repo > groups > true (secure default allows actions)
+      enabled = coalesce(
+        lookup(repo_config, "actions", null) != null ? lookup(lookup(repo_config, "actions", {}), "enabled", null) : null,
+        # Check groups in reverse order (last group wins)
+        try([
+          for group_name in reverse(repo_config.groups) :
+          lookup(
+            lookup(
+              lookup(local.config_groups, group_name, {}),
+              "actions",
+              {}
+            ),
+            "enabled",
+            null
+          )
+          if lookup(
+            lookup(
+              lookup(local.config_groups, group_name, {}),
+              "actions",
+              {}
+            ),
+            "enabled",
+            null
+          ) != null
+        ][0], null),
+        true
+      )
+
+      # Allowed actions: repo > groups > "all" (GitHub's default)
+      allowed_actions = coalesce(
+        lookup(repo_config, "actions", null) != null ? lookup(lookup(repo_config, "actions", {}), "allowed_actions", null) : null,
+        try([
+          for group_name in reverse(repo_config.groups) :
+          lookup(
+            lookup(
+              lookup(local.config_groups, group_name, {}),
+              "actions",
+              {}
+            ),
+            "allowed_actions",
+            null
+          )
+          if lookup(
+            lookup(
+              lookup(local.config_groups, group_name, {}),
+              "actions",
+              {}
+            ),
+            "allowed_actions",
+            null
+          ) != null
+        ][0], null),
+        "all"
+      )
+
+      # Allowed actions config: only included when allowed_actions is "selected"
+      allowed_actions_config = {
+        github_owned_allowed = coalesce(
+          lookup(repo_config, "actions", null) != null &&
+          lookup(lookup(repo_config, "actions", {}), "allowed_actions_config", null) != null
+          ? lookup(
+            lookup(lookup(repo_config, "actions", {}), "allowed_actions_config", {}),
+            "github_owned_allowed",
+            null
+          ) : null,
+          try([
+            for group_name in reverse(repo_config.groups) :
+            lookup(
+              lookup(
+                lookup(
+                  lookup(local.config_groups, group_name, {}),
+                  "actions",
+                  {}
+                ),
+                "allowed_actions_config",
+                {}
+              ),
+              "github_owned_allowed",
+              null
+            )
+            if lookup(
+              lookup(
+                lookup(
+                  lookup(local.config_groups, group_name, {}),
+                  "actions",
+                  {}
+                ),
+                "allowed_actions_config",
+                {}
+              ),
+              "github_owned_allowed",
+              null
+            ) != null
+          ][0], null),
+          true # Secure default: allow github-owned actions
+        )
+
+        verified_allowed = coalesce(
+          lookup(repo_config, "actions", null) != null &&
+          lookup(lookup(repo_config, "actions", {}), "allowed_actions_config", null) != null
+          ? lookup(
+            lookup(lookup(repo_config, "actions", {}), "allowed_actions_config", {}),
+            "verified_allowed",
+            null
+          ) : null,
+          try([
+            for group_name in reverse(repo_config.groups) :
+            lookup(
+              lookup(
+                lookup(
+                  lookup(local.config_groups, group_name, {}),
+                  "actions",
+                  {}
+                ),
+                "allowed_actions_config",
+                {}
+              ),
+              "verified_allowed",
+              null
+            )
+            if lookup(
+              lookup(
+                lookup(
+                  lookup(local.config_groups, group_name, {}),
+                  "actions",
+                  {}
+                ),
+                "allowed_actions_config",
+                {}
+              ),
+              "verified_allowed",
+              null
+            ) != null
+          ][0], null),
+          true # Secure default: allow verified marketplace actions
+        )
+
+        # Patterns are merged from all groups + repo
+        patterns_allowed = local.merged_actions_patterns[repo_name]
+      }
+    } : null
   }
 
   # Calculate effective visibility for each repository (needed for ruleset filtering)
@@ -239,6 +452,10 @@ locals {
       # Rulesets: apply rulesets from groups and repo-specific rulesets
       # Note: effective_rulesets filters based on subscription tier
       rulesets = local.effective_rulesets[repo_name]
+
+      # Actions: apply actions configuration from groups and repo-specific settings
+      # Returns null if no actions config is specified (resource will be skipped)
+      actions = local.effective_actions[repo_name]
     }
   }
 }
