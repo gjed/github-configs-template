@@ -108,6 +108,18 @@ locals {
     {}
   )
 
+  # Load webhook definitions from config/webhook/ directory
+  # Directory is optional - missing directory results in empty map
+  webhook_dir = "${path.module}/../config/webhook"
+  webhook_files = try(
+    fileset(local.webhook_dir, "*.yml"),
+    toset([])
+  )
+  webhooks_config = merge([
+    for f in sort(tolist(local.webhook_files)) :
+    try(yamldecode(file("${local.webhook_dir}/${f}")), {})
+  ]...)
+
   # Extract values from YAML
   github_org    = local.common_config.organization
   subscription  = lookup(local.common_config, "subscription", "free")
@@ -459,6 +471,80 @@ locals {
     if length(rulesets) > 0 && length(local.effective_rulesets[repo_name]) == 0
   ]
 
+  # Merge webhooks from groups and repo for each repository
+  # Later definitions override earlier ones by name (groups applied in order, then repo overrides)
+  merged_webhooks_raw = {
+    for repo_name, repo_config in local.repos_yaml : repo_name => merge(
+      concat(
+        # Apply each group's webhooks sequentially - later groups override by name
+        [
+          for group_name in repo_config.groups : {
+            for entry in lookup(lookup(local.config_groups, group_name, {}), "webhooks", []) :
+            (can(tostring(entry)) ? tostring(entry) : lookup(entry, "name", "")) => (
+              can(tostring(entry)) ?
+              # String reference - look up in webhooks_config
+              lookup(local.webhooks_config, tostring(entry), null) :
+              # Inline definition
+              {
+                url          = lookup(entry, "url", null)
+                content_type = lookup(entry, "content_type", "json")
+                secret       = lookup(entry, "secret", null)
+                events       = lookup(entry, "events", [])
+                active       = lookup(entry, "active", true)
+                insecure_ssl = lookup(entry, "insecure_ssl", false)
+              }
+            )
+            if(can(tostring(entry)) ? tostring(entry) : lookup(entry, "name", "")) != ""
+          }
+        ],
+        # Add repo-specific webhooks (repo overrides group by name)
+        [
+          {
+            for entry in lookup(repo_config, "webhooks", []) :
+            (can(tostring(entry)) ? tostring(entry) : lookup(entry, "name", "")) => (
+              can(tostring(entry)) ?
+              # String reference - look up in webhooks_config
+              lookup(local.webhooks_config, tostring(entry), null) :
+              # Inline definition
+              {
+                url          = lookup(entry, "url", null)
+                content_type = lookup(entry, "content_type", "json")
+                secret       = lookup(entry, "secret", null)
+                events       = lookup(entry, "events", [])
+                active       = lookup(entry, "active", true)
+                insecure_ssl = lookup(entry, "insecure_ssl", false)
+              }
+            )
+            if(can(tostring(entry)) ? tostring(entry) : lookup(entry, "name", "")) != ""
+          }
+        ]
+      )...
+    )
+  }
+
+  # Filter out any null webhooks (undefined references) and resolve secrets from webhook_secrets variable
+  # Secrets using env:VAR_NAME pattern are looked up in var.webhook_secrets map
+  merged_webhooks = {
+    for repo_name, webhooks in local.merged_webhooks_raw : repo_name => {
+      for name, webhook in webhooks : name => {
+        url          = webhook.url
+        content_type = webhook.content_type
+        # Resolve env:VAR_NAME pattern for secrets using webhook_secrets variable
+        secret = (
+          webhook.secret != null && can(regex("^env:", webhook.secret)) ?
+          lookup(var.webhook_secrets, substr(webhook.secret, 4, -1), null) :
+          webhook.secret
+        )
+        events       = webhook.events
+        active       = webhook.active
+        insecure_ssl = webhook.insecure_ssl
+      }
+      if webhook != null
+    }
+  }
+
+
+
   # Transform YAML repos into the format expected by the module
   # Multiple groups are applied sequentially with proper merging
   repositories = {
@@ -511,6 +597,9 @@ locals {
       # Actions: apply actions configuration from groups and repo-specific settings
       # Returns null if no actions config is specified (resource will be skipped)
       actions = local.effective_actions[repo_name]
+
+      # Webhooks: merge from all groups + repo-specific webhooks (repo overrides group by name)
+      webhooks = local.merged_webhooks[repo_name]
     }
   }
 }

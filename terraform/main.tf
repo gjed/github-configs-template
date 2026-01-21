@@ -62,6 +62,9 @@ module "repositories" {
 
   # Apply Actions permissions configuration
   actions = each.value.actions
+
+  # Apply webhooks from groups and repo-specific definitions
+  webhooks = each.value.webhooks
 }
 
 # Organization-level Actions permissions

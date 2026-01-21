@@ -1,0 +1,55 @@
+# Webhook Definitions
+# Define webhooks here and reference them by name in groups or repositories
+# Each webhook is identified by its key (name) and can be reused across repos
+#
+# Schema:
+#   webhook-name:
+#     url: https://example.com/webhook     # Required: Webhook endpoint URL
+#     content_type: json                    # Optional: json (default) or form
+#     secret: env:WEBHOOK_SECRET_VAR        # Optional: Secret from webhook_secrets variable # pragma: allowlist secret
+#     events: [push, pull_request]          # Required: GitHub events to trigger webhook
+#     active: true                          # Optional: Enable webhook (default: true)
+#     insecure_ssl: false                   # Optional: Skip SSL verification (default: false)
+#
+# To use a webhook secret: # pragma: allowlist secret
+#   1. Define secret: env:MY_SECRET_VAR in your webhook # pragma: allowlist secret
+#   2. Pass the secret value via Terraform: # pragma: allowlist secret
+#      terraform apply -var='webhook_secrets={"MY_SECRET_VAR":"actual-secret-value"}' # pragma: allowlist secret
+#      Or use environment variable: export TF_VAR_webhook_secrets='{"MY_SECRET_VAR":"actual-secret-value"}' # pragma: allowlist secret
+#
+# Example webhook definitions (uncomment to use):
+
+# jenkins-ci:
+#   url: https://jenkins.example.com/github-webhook/
+#   content_type: json
+#   secret: env:JENKINS_WEBHOOK_SECRET # pragma: allowlist secret
+#   events:
+#     - push
+#     - pull_request
+#   active: true
+
+# slack-notify:
+#   url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+#   content_type: json
+#   events:
+#     - push
+#     - release
+#     - pull_request
+#   active: true
+
+# discord-notify:
+#   url: https://discord.com/api/webhooks/YOUR/WEBHOOK/URL
+#   content_type: json
+#   events:
+#     - push
+#     - release
+#   active: true
+
+# security-scanner:
+#   url: https://security.example.com/scan
+#   content_type: json
+#   secret: env:SECURITY_WEBHOOK_SECRET # pragma: allowlist secret
+#   events:
+#     - push
+#     - pull_request
+#   active: true

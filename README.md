@@ -14,6 +14,7 @@ Manage your GitHub organization's repositories as code using Terraform and YAML 
 - **Configuration groups** - Share settings across multiple repositories (DRY)
 - **Repository rulesets** - Enforce branch protection and policies
 - **GitHub Actions permissions** - Control which actions can run and workflow permissions
+- **Webhook management** - Configure CI/CD and notification webhooks as code
 - **Subscription-aware** - Gracefully handles GitHub Free tier limitations
 - **Onboarding script** - Easily import existing repositories
 
@@ -66,6 +67,8 @@ docs-site:
   description: "Documentation website"
   groups: ["base", "oss"]
   homepage_url: "https://docs.example.com"
+  webhooks:
+    - slack-notify        # Reference webhook from config/webhook/
 ```
 
 ## 📚 Documentation

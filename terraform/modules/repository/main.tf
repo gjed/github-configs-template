@@ -209,3 +209,21 @@ resource "github_actions_repository_permissions" "this" {
     }
   }
 }
+
+# Manage repository webhooks
+# Note: Secrets are resolved at the yaml-config layer before being passed to this module
+resource "github_repository_webhook" "this" {
+  for_each = var.webhooks
+
+  repository = github_repository.this.name
+
+  configuration {
+    url          = each.value.url
+    content_type = each.value.content_type
+    secret       = each.value.secret
+    insecure_ssl = each.value.insecure_ssl
+  }
+
+  events = each.value.events
+  active = each.value.active
+}

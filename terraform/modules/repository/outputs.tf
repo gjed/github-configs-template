@@ -39,3 +39,10 @@ output "repo_id" {
   description = "Repository ID"
   value       = github_repository.this.repo_id
 }
+
+output "webhooks" {
+  description = "Map of webhook names to their URLs"
+  value = {
+    for name, webhook in github_repository_webhook.this : name => webhook.url
+  }
+}

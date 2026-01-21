@@ -17,9 +17,11 @@ config/
 ├── group/                  # Configuration groups (directory - mandatory)
 │   ├── default-groups.yml
 │   └── custom-groups.yml
-└── ruleset/                # Ruleset definitions (directory - mandatory)
-    ├── default-rulesets.yml
-    └── custom-rulesets.yml
+├── ruleset/                # Ruleset definitions (directory - mandatory)
+│   ├── default-rulesets.yml
+│   └── custom-rulesets.yml
+└── webhook/                # Webhook definitions (directory - optional)
+    └── *.yml               # Webhook definition files
 ```
 
 ### Directory Loading Behavior
@@ -114,6 +116,7 @@ When a repository uses multiple groups:
 | `teams` | Merged, later overrides |
 | `collaborators` | Merged, later overrides |
 | `rulesets` | Merged and deduplicated |
+| `webhooks` | Merged, later overrides by name |
 
 Example:
 
@@ -195,6 +198,7 @@ All available repository settings:
 | `teams` | map | `{}` | Team permissions |
 | `collaborators` | map | `{}` | Collaborator permissions |
 | `rulesets` | list | `[]` | Ruleset names to apply |
+| `webhooks` | list | `[]` | Webhook names or inline definitions |
 
 ## config/ruleset/ Directory
 
@@ -413,6 +417,133 @@ strict-main:
     pattern: "^(feat|fix|docs):"
     name: "Conventional Commits"
     negate: false
+```
+
+## config/webhook/
+
+Webhook definitions directory. Define webhooks here and reference them by name in groups or repositories.
+
+### Webhook Definition
+
+```yaml
+# config/webhook/ci.yml
+jenkins-ci:
+  url: https://jenkins.example.com/github-webhook/
+  content_type: json         # Optional: json (default) or form
+  secret: env:JENKINS_SECRET # Optional: Secret from webhook_secrets variable
+  events:                    # Required: GitHub events to trigger
+    - push
+    - pull_request
+  active: true               # Optional: Enable webhook (default: true)
+  insecure_ssl: false        # Optional: Skip SSL verification (default: false)
+
+slack-notify:
+  url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+  events:
+    - push
+    - release
+```
+
+### Webhook Settings
+
+| Setting | Type | Default | Description |
+| ------- | ---- | ------- | ----------- |
+| `url` | string | **required** | Webhook endpoint URL |
+| `content_type` | string | `json` | Payload format: `json` or `form` |
+| `secret` | string | `null` | Webhook secret (`env:VAR_NAME` format) |
+| `events` | list | **required** | GitHub events to trigger webhook |
+| `active` | bool | `true` | Enable/disable webhook |
+| `insecure_ssl` | bool | `false` | Skip SSL certificate verification |
+
+### Common GitHub Events
+
+| Event | Triggered when |
+| ----- | -------------- |
+| `push` | Commits pushed to branch |
+| `pull_request` | PR opened, closed, synchronized |
+| `release` | Release published, created |
+| `issues` | Issue opened, edited, closed |
+| `issue_comment` | Comment on issue or PR |
+| `create` | Branch or tag created |
+| `delete` | Branch or tag deleted |
+| `deployment` | Deployment created |
+| `deployment_status` | Deployment status changed |
+| `workflow_run` | GitHub Actions workflow run |
+
+See [GitHub Webhooks Documentation](https://docs.github.com/en/webhooks/webhook-events-and-payloads) for all events.
+
+### Webhook Secrets
+
+Webhook secrets use the `env:VAR_NAME` pattern to reference the `webhook_secrets` Terraform variable:
+
+```yaml
+# config/webhook/ci.yml
+jenkins-ci:
+  url: https://jenkins.example.com/webhook
+  secret: env:JENKINS_WEBHOOK_SECRET # pragma: allowlist secret
+  events: [push]
+```
+
+Pass secrets via Terraform:
+
+```bash
+# Using command line
+terraform apply -var='webhook_secrets={"JENKINS_WEBHOOK_SECRET":"your-secret-value"}' # pragma: allowlist secret
+
+# Using environment variable
+export TF_VAR_webhook_secrets='{"JENKINS_WEBHOOK_SECRET":"your-secret-value"}' # pragma: allowlist secret
+terraform apply
+
+# Using tfvars file (keep secure!)
+# terraform.tfvars
+webhook_secrets = { # pragma: allowlist secret
+  JENKINS_WEBHOOK_SECRET = "your-secret-value" # pragma: allowlist secret
+}
+```
+
+### Using Webhooks
+
+Reference webhooks by name in groups or repositories:
+
+```yaml
+# config/group/with-ci.yml
+with-ci:
+  webhooks:
+    - jenkins-ci          # Reference by name
+    - slack-notify
+
+# config/repository/my-repo.yml
+my-repo:
+  groups: ["base", "with-ci"]
+  webhooks:
+    - discord-notify      # Additional webhook
+    - name: custom        # Inline definition
+      url: https://custom.example.com/hook
+      events: [release]
+```
+
+### Webhook Merge Behavior
+
+- Groups are applied in order; later groups override earlier by webhook name
+- Repository webhooks override group webhooks by name
+- Webhooks with unique names are all included
+
+Example:
+
+```yaml
+# groups.yml
+base:
+  webhooks:
+    - ci-webhook          # URL: https://ci-v1.example.com
+
+modern:
+  webhooks:
+    - ci-webhook          # URL: https://ci-v2.example.com (overrides base)
+
+# repositories.yml
+my-repo:
+  groups: ["base", "modern"]
+  # Result: ci-webhook uses https://ci-v2.example.com
 ```
 
 ## Team Permissions

@@ -198,3 +198,15 @@ variable "actions" {
     error_message = "allowed_actions must be 'all', 'local_only', or 'selected'."
   }
 }
+variable "webhooks" {
+  description = "Map of repository webhooks to create"
+  type = map(object({
+    url          = string
+    content_type = optional(string, "json")
+    secret       = optional(string)
+    events       = list(string)
+    active       = optional(bool, true)
+    insecure_ssl = optional(bool, false)
+  }))
+  default = {}
+}

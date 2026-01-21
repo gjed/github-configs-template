@@ -33,6 +33,12 @@
 #   has_discussions: true        # Override: enable discussions
 #   topics:
 #     - custom
+#   # Webhooks: reference by name or define inline
+#   webhooks:
+#     - slack-notify             # Reference by name from config/webhook/
+#     - name: custom-webhook     # Inline definition
+#       url: https://custom.example.com/webhook
+#       events: [push, release]
 
 # Empty document marker (required for valid YAML when all content is commented)
 ---
