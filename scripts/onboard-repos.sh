@@ -63,6 +63,9 @@ FILTER=""
 DRY_RUN=false
 REPOS=()
 
+# Configuration paths (matching Terraform's yaml-config.tf)
+REPOSITORY_CONFIG_PATH="$PROJECT_ROOT/config/repository"
+
 # Helper functions
 log_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
@@ -212,7 +215,8 @@ import_repo() {
     fi
 
     local import_addr="module.repositories[\"$repo\"].github_repository.this"
-    local import_id="$org/$repo"
+    # GitHub provider expects just the repo name when owner is configured in provider
+    local import_id="$repo"
 
     if [[ "$dry_run" == true ]]; then
         log_info "[DRY-RUN] Would import: $import_addr <- $import_id"
@@ -328,11 +332,10 @@ main() {
     if [[ "$IMPORT" == true ]]; then
         log_info "Importing ${#REPOS[@]} repositories into Terraform state..."
 
-        # Check if repos are in config
-        local repos_yaml="$PROJECT_ROOT/config/repositories.yml"
+        # Check if repos are in config (search all YAML files in config/repository/)
         for repo in "${REPOS[@]}"; do
-            if ! grep -q "^$repo:" "$repos_yaml" 2>/dev/null; then
-                log_warn "$repo not found in repositories.yml - add it first or import will fail"
+            if ! grep -rq "^$repo:" "$REPOSITORY_CONFIG_PATH"/*.yml 2>/dev/null; then
+                log_warn "$repo not found in config/repository/*.yml - add it first or import will fail"
             fi
         done
 
