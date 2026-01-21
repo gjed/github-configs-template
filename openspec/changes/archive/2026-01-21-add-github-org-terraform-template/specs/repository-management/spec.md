@@ -87,9 +87,9 @@ The system SHALL create and manage GitHub repositories using the Terraform GitHu
 
 - **WHEN** a repository is created or updated
 - **THEN** the following settings are applied: visibility, description, homepage_url, has_wiki,
-  has_issues, has_projects, has_downloads, has_discussions, allow_merge_commit, allow_squash_merge,
+  has_issues, has_projects, has_discussions, allow_merge_commit, allow_squash_merge,
   allow_rebase_merge, allow_auto_merge, allow_update_branch, delete_branch_on_merge,
-  web_commit_signoff_required, topics, license_template
+  web_commit_signoff_required, vulnerability_alerts, topics, license_template
 
 ---
 

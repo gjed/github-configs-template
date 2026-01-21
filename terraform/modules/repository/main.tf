@@ -18,7 +18,6 @@ resource "github_repository" "this" {
   has_wiki        = var.has_wiki
   has_issues      = var.has_issues
   has_projects    = var.has_projects
-  has_downloads   = var.has_downloads
   has_discussions = var.has_discussions
 
   allow_merge_commit          = var.allow_merge_commit
@@ -28,6 +27,7 @@ resource "github_repository" "this" {
   allow_update_branch         = var.allow_update_branch
   delete_branch_on_merge      = var.delete_branch_on_merge
   web_commit_signoff_required = var.web_commit_signoff_required
+  vulnerability_alerts        = var.vulnerability_alerts
 
   topics = var.topics
 
@@ -226,88 +226,4 @@ resource "github_repository_webhook" "this" {
 
   events = each.value.events
   active = each.value.active
-}
-
-# Dependabot configuration file
-# Creates .github/dependabot.yml when dependabot config is provided
-resource "github_repository_file" "dependabot" {
-  count = var.dependabot != null ? 1 : 0
-
-  repository          = github_repository.this.name
-  branch              = github_repository.this.default_branch
-  file                = ".github/dependabot.yml"
-  content             = local.dependabot_yaml
-  commit_message      = "chore: update Dependabot configuration [terraform]"
-  overwrite_on_create = true
-
-  lifecycle {
-    ignore_changes = [commit_message]
-  }
-}
-
-# Renovate configuration file
-# Creates renovate.json (or custom path) when renovate config is provided
-resource "github_repository_file" "renovate" {
-  count = var.renovate != null ? 1 : 0
-
-  repository          = github_repository.this.name
-  branch              = github_repository.this.default_branch
-  file                = var.renovate_file_path
-  content             = local.renovate_json
-  commit_message      = "chore: update Renovate configuration [terraform]"
-  overwrite_on_create = true
-
-  lifecycle {
-    ignore_changes = [commit_message]
-  }
-}
-
-# Local values for generating configuration files
-locals {
-  # Generate Dependabot YAML content
-  dependabot_yaml = var.dependabot != null ? yamlencode({
-    version = var.dependabot.version
-    updates = [
-      for update in var.dependabot.updates : {
-        for key, value in {
-          "package-ecosystem"        = update.package_ecosystem
-          "directory"                = update.directory
-          "schedule"                 = update.schedule
-          "open-pull-requests-limit" = update.open_pull_requests_limit
-          "allow"                    = update.allow
-          "ignore"                   = update.ignore
-          "labels"                   = update.labels
-          "milestone"                = update.milestone
-          "assignees"                = update.assignees
-          "reviewers"                = update.reviewers
-          "commit-message" = update.commit_message != null ? {
-            for k, v in {
-              "prefix"             = update.commit_message.prefix
-              "prefix-development" = update.commit_message.prefix_development
-              "include"            = update.commit_message.include
-            } : k => v if v != null
-          } : null
-          "registries" = update.registries
-          "vendor"     = update.vendor
-          "groups"     = update.groups
-        } : key => value if value != null
-      }
-    ]
-    registries = var.dependabot.registries != null ? {
-      for name, registry in var.dependabot.registries : name => {
-        for key, value in {
-          "type"          = registry.type
-          "url"           = registry.url
-          "username"      = registry.username
-          "password"      = registry.password
-          "key"           = registry.key
-          "token"         = registry.token
-          "replaces-base" = registry.replaces_base
-        } : key => value if value != null
-      }
-    } : null
-  }) : ""
-
-  # Generate Renovate JSON content
-  renovate_json = var.renovate != null ? jsonencode(var.renovate) : ""
 }

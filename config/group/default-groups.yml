@@ -18,7 +18,6 @@ oss:
   has_wiki: true
   has_issues: true
   has_projects: false
-  has_downloads: false
   has_discussions: true
   allow_merge_commit: true
   allow_squash_merge: true
@@ -27,6 +26,7 @@ oss:
   allow_update_branch: true
   delete_branch_on_merge: true
   web_commit_signoff_required: true
+  vulnerability_alerts: true
   require_linear_history: true
   topics:
     - oss
@@ -45,7 +45,6 @@ internal:
   has_wiki: true
   has_issues: true
   has_projects: false
-  has_downloads: true
   has_discussions: false
   allow_merge_commit: false
   allow_squash_merge: true
@@ -54,6 +53,7 @@ internal:
   allow_update_branch: true
   delete_branch_on_merge: true
   web_commit_signoff_required: true
+  vulnerability_alerts: true
   topics:
     - internal
   # Uncomment below if you have a paid GitHub plan
@@ -77,12 +77,3 @@ internal:
   # webhooks:
   #   - jenkins-ci             # Reference by name
   #   - slack-notify           # Reference by name
-
-# ============================================================================
-# Dependency Update Groups
-# ============================================================================
-# For Dependabot and Renovate configuration examples, see:
-# - config/group/example-dependabot.yml - Dependabot configuration examples
-# - config/group/example-renovate.yml   - Renovate configuration examples
-#
-# Copy groups from example files to this file and customize as needed.

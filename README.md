@@ -8,6 +8,9 @@ Manage your GitHub organization's repositories as code using Terraform and YAML 
 </p>
 <!-- markdownlint-enable MD033 -->
 
+> **Note:** See [gjed/github-configs-public](https://github.com/gjed/github-configs-public) for a public example of
+> this template in action.
+
 ## ✨ Features
 
 - **YAML-based configuration** - Human-readable repository definitions
