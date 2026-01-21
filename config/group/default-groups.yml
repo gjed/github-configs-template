@@ -76,3 +76,12 @@ internal:
   # webhooks:
   #   - jenkins-ci             # Reference by name
   #   - slack-notify           # Reference by name
+
+# ============================================================================
+# Dependency Update Groups
+# ============================================================================
+# For Dependabot and Renovate configuration examples, see:
+# - config/group/example-dependabot.yml - Dependabot configuration examples
+# - config/group/example-renovate.yml   - Renovate configuration examples
+#
+# Copy groups from example files to this file and customize as needed.

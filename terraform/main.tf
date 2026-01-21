@@ -65,6 +65,11 @@ module "repositories" {
 
   # Apply webhooks from groups and repo-specific definitions
   webhooks = each.value.webhooks
+
+  # Dependency update configurations
+  dependabot         = each.value.dependabot
+  renovate           = each.value.renovate
+  renovate_file_path = each.value.renovate_file_path
 }
 
 # Organization-level Actions permissions

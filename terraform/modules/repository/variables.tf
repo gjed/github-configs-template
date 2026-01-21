@@ -210,3 +210,72 @@ variable "webhooks" {
   }))
   default = {}
 }
+
+# Dependency Update Configuration
+variable "dependabot" {
+  description = "Dependabot configuration for automatic dependency updates. Set to null to disable."
+  type = object({
+    version = optional(number, 2)
+    updates = list(object({
+      package_ecosystem = string
+      directory         = string
+      schedule = object({
+        interval = string
+        day      = optional(string)
+        time     = optional(string)
+        timezone = optional(string)
+      })
+      open_pull_requests_limit = optional(number)
+      allow = optional(list(object({
+        dependency_type = optional(string)
+        dependency_name = optional(string)
+      })))
+      ignore = optional(list(object({
+        dependency_name = optional(string)
+        dependency_type = optional(string)
+        update_types    = optional(list(string))
+        versions        = optional(list(string))
+      })))
+      labels    = optional(list(string))
+      milestone = optional(number)
+      assignees = optional(list(string))
+      reviewers = optional(list(string))
+      commit_message = optional(object({
+        prefix             = optional(string)
+        prefix_development = optional(string)
+        include            = optional(string)
+      }))
+      registries = optional(list(string))
+      vendor     = optional(bool)
+      groups = optional(map(object({
+        applies_to       = optional(string)
+        patterns         = optional(list(string))
+        dependency_type  = optional(string)
+        update_types     = optional(list(string))
+        exclude_patterns = optional(list(string))
+      })))
+    }))
+    registries = optional(map(object({
+      type          = string
+      url           = optional(string)
+      username      = optional(string)
+      password      = optional(string)
+      key           = optional(string)
+      token         = optional(string)
+      replaces_base = optional(bool)
+    })))
+  })
+  default = null
+}
+
+variable "renovate" {
+  description = "Renovate configuration for automatic dependency updates. Set to null to disable."
+  type        = any
+  default     = null
+}
+
+variable "renovate_file_path" {
+  description = "Path for the Renovate configuration file"
+  type        = string
+  default     = "renovate.json"
+}

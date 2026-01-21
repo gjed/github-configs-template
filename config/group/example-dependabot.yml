@@ -1,0 +1,300 @@
+# ============================================================================
+# Dependabot Configuration Examples
+# ============================================================================
+# This file contains example group configurations for GitHub Dependabot.
+# Copy groups to your groups.yml and customize as needed.
+#
+# Dependabot is GitHub's built-in dependency update tool with:
+# - Native GitHub integration (Security tab, Insights)
+# - Support for 20+ package ecosystems
+# - Automatic security updates
+# - Simple YAML configuration
+#
+# For full documentation: https://docs.github.com/en/code-security/dependabot
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Basic Dependabot Setup
+# ----------------------------------------------------------------------------
+# Use this group for standard dependency updates with npm and GitHub Actions.
+# This is a good starting point for most JavaScript/TypeScript projects.
+use-dependabot:
+  dependabot:
+    version: 2  # Always use version 2
+    updates:
+      # npm ecosystem - for package.json dependencies
+      - package_ecosystem: npm
+        directory: "/"  # Location of package.json (root of repository)
+        schedule:
+          interval: weekly    # Options: daily, weekly, monthly
+          day: monday         # For weekly: monday-sunday
+          # time: "04:00"     # Optional: 24-hour format (UTC)
+          # timezone: "UTC"   # Optional: IANA timezone (e.g., "America/New_York")
+        open_pull_requests_limit: 10  # Max concurrent PRs (default: 5, max: 10)
+
+        # Groups allow combining multiple updates into a single PR
+        groups:
+          minor-and-patch:
+            patterns:
+              - "*"  # Match all dependencies
+            update_types:
+              - minor  # Semantic versioning: x.Y.z
+              - patch  # Semantic versioning: x.y.Z
+            # Major version updates (X.y.z) will create separate PRs
+
+        # Additional options (uncomment to use):
+        # target_branch: "develop"  # Target branch for PRs (default: default branch)
+        # commit_message:
+        #   prefix: "chore"         # Commit message prefix
+        #   include: "scope"        # Include scope in commit message
+        # labels:                   # Labels to add to PRs
+        #   - dependencies
+        #   - npm
+        # reviewers:                # Reviewers to request
+        #   - octocat
+        # assignees:                # Assignees to add
+        #   - octocat
+        # milestone: 4              # Milestone number to add
+        # ignore:                   # Dependencies to ignore
+        #   - dependency-name: "express"
+        #     versions: ["5.x"]     # Ignore specific versions
+        # allow:                    # Only update specific dependencies
+        #   - dependency-name: "lodash*"  # Supports wildcards
+        #     dependency-type: "direct"   # direct or indirect
+        # versioning_strategy: auto # auto, increase, increase-if-necessary, lockfile-only, widen
+
+      # github-actions ecosystem - for workflow dependencies
+      - package_ecosystem: github-actions
+        directory: "/"  # Location of .github/workflows
+        schedule:
+          interval: weekly
+          day: monday
+        groups:
+          actions:
+            patterns:
+              - "*"  # Group all GitHub Actions updates together
+
+# ----------------------------------------------------------------------------
+# Dependabot for Python Projects
+# ----------------------------------------------------------------------------
+# Use this group for Python projects using pip/requirements.txt.
+# Combines with use-dependabot for comprehensive coverage.
+use-dependabot-python:
+  dependabot:
+    version: 2
+    updates:
+      - package_ecosystem: pip
+        directory: "/"  # Location of requirements.txt or setup.py
+        schedule:
+          interval: weekly
+          day: monday
+        open_pull_requests_limit: 10
+
+        # Python-specific options:
+        # insecure_external_code_execution: allow  # For setup.py execution
+        # allow:
+        #   - dependency-type: "direct"  # Only update direct dependencies
+        # groups:
+        #   production:
+        #     patterns:
+        #       - "*"
+        #     exclude-patterns:
+        #       - "pytest*"
+        #       - "black*"
+
+# ----------------------------------------------------------------------------
+# Dependabot for Go Projects
+# ----------------------------------------------------------------------------
+# Use this group for Go projects using go.mod.
+use-dependabot-go:
+  dependabot:
+    version: 2
+    updates:
+      - package_ecosystem: gomod
+        directory: "/"  # Location of go.mod
+        schedule:
+          interval: weekly
+          day: monday
+        open_pull_requests_limit: 10
+
+        # Go-specific options:
+        # groups:
+        #   google-cloud:
+        #     patterns:
+        #       - "cloud.google.com/go/*"
+        #   aws:
+        #     patterns:
+        #       - "github.com/aws/aws-sdk-go-v2/*"
+
+# ----------------------------------------------------------------------------
+# Additional Ecosystem Examples
+# ----------------------------------------------------------------------------
+# Uncomment and customize for your tech stack
+
+# Docker
+# use-dependabot-docker:
+#   dependabot:
+#     version: 2
+#     updates:
+#       - package_ecosystem: docker
+#         directory: "/"
+#         schedule:
+#           interval: weekly
+#           day: monday
+
+# Maven (Java)
+# use-dependabot-maven:
+#   dependabot:
+#     version: 2
+#     updates:
+#       - package_ecosystem: maven
+#         directory: "/"
+#         schedule:
+#           interval: weekly
+#           day: monday
+#         ignore:
+#           - dependency-name: "org.springframework.boot:*"
+#             versions: ["3.x"]  # Stay on Spring Boot 2.x
+
+# Gradle (Java/Kotlin)
+# use-dependabot-gradle:
+#   dependabot:
+#     version: 2
+#     updates:
+#       - package_ecosystem: gradle
+#         directory: "/"
+#         schedule:
+#           interval: weekly
+#           day: monday
+
+# NuGet (.NET)
+# use-dependabot-nuget:
+#   dependabot:
+#     version: 2
+#     updates:
+#       - package_ecosystem: nuget
+#         directory: "/"
+#         schedule:
+#           interval: weekly
+#           day: monday
+
+# Composer (PHP)
+# use-dependabot-composer:
+#   dependabot:
+#     version: 2
+#     updates:
+#       - package_ecosystem: composer
+#         directory: "/"
+#         schedule:
+#           interval: weekly
+#           day: monday
+
+# Bundler (Ruby)
+# use-dependabot-bundler:
+#   dependabot:
+#     version: 2
+#     updates:
+#       - package_ecosystem: bundler
+#         directory: "/"
+#         schedule:
+#           interval: weekly
+#           day: monday
+
+# Cargo (Rust)
+# use-dependabot-cargo:
+#   dependabot:
+#     version: 2
+#     updates:
+#       - package_ecosystem: cargo
+#         directory: "/"
+#         schedule:
+#           interval: weekly
+#           day: monday
+
+# Terraform
+# use-dependabot-terraform:
+#   dependabot:
+#     version: 2
+#     updates:
+#       - package_ecosystem: terraform
+#         directory: "/"
+#         schedule:
+#           interval: weekly
+#           day: monday
+
+# ----------------------------------------------------------------------------
+# Advanced: Multi-Directory Setup
+# ----------------------------------------------------------------------------
+# Use when you have multiple package manifests in different directories
+# use-dependabot-monorepo:
+#   dependabot:
+#     version: 2
+#     updates:
+#       # Frontend
+#       - package_ecosystem: npm
+#         directory: "/frontend"
+#         schedule:
+#           interval: weekly
+#           day: monday
+#         groups:
+#           frontend-deps:
+#             patterns:
+#               - "*"
+#
+#       # Backend
+#       - package_ecosystem: npm
+#         directory: "/backend"
+#         schedule:
+#           interval: weekly
+#           day: monday
+#         groups:
+#           backend-deps:
+#             patterns:
+#               - "*"
+#
+#       # Shared packages
+#       - package_ecosystem: npm
+#         directory: "/packages/*"
+#         schedule:
+#           interval: weekly
+#           day: monday
+
+# ----------------------------------------------------------------------------
+# Merge Behavior
+# ----------------------------------------------------------------------------
+# When combining multiple groups (e.g., use-dependabot + use-dependabot-python):
+#
+# - Updates are merged by package_ecosystem + directory key
+# - If both groups define the same ecosystem/directory, the later group's
+#   configuration completely replaces the earlier one
+# - To combine ecosystems, define them in separate groups or use a single group
+#
+# Example: A repository using both base Dependabot and Python
+# groups:
+#   - use-dependabot        # Adds npm + github-actions
+#   - use-dependabot-python # Adds pip
+# Result: All three ecosystems are configured
+#
+# Example: Overriding npm schedule
+# groups:
+#   - use-dependabot  # npm scheduled weekly on Monday
+# dependabot:         # Repository-specific override
+#   updates:
+#     - package_ecosystem: npm
+#       directory: "/"
+#       schedule:
+#         interval: daily  # Override to daily
+# Result: npm updates daily, github-actions weekly
+
+# ----------------------------------------------------------------------------
+# Migration from Manual Configuration
+# ----------------------------------------------------------------------------
+# If you already have .github/dependabot.yml in your repository:
+#
+# 1. Review existing configuration
+# 2. Choose appropriate group(s) or create custom group
+# 3. Apply group via groups.yml or repositories.yml
+# 4. Commit and push - Terraform will update the file
+# 5. Review the generated PR to verify configuration
+#
+# Note: Terraform manages the file - manual edits will be overwritten!
