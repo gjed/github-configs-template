@@ -121,14 +121,16 @@ locals {
   ]...)
 
   # Extract values from YAML
-  github_org    = local.common_config.organization
-  subscription  = lookup(local.common_config, "subscription", "free")
-  config_groups = local.groups_config
-  repos_yaml    = local.repos_config
+  github_org      = local.common_config.organization
+  is_organization = lookup(local.common_config, "is_organization", true)
+  subscription    = lookup(local.common_config, "subscription", "free")
+  config_groups   = local.groups_config
+  repos_yaml      = local.repos_config
 
   # Organization-level actions configuration
   # Defaults to null if not specified (no org-level actions resource created)
-  org_actions_config = lookup(local.common_config, "actions", null)
+  # Only applicable for organizations, not personal accounts
+  org_actions_config = local.is_organization ? lookup(local.common_config, "actions", null) : null
 
   # Subscription tier feature availability
   # - free: Rulesets only work on public repositories

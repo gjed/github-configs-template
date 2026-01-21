@@ -28,8 +28,6 @@ output "visibility" {
   value       = github_repository.this.visibility
 }
 
-# Note: default_branch attribute is deprecated but still functional
-# The new primary_branch block should be used for managing default branch
 output "default_branch" {
   description = "Default branch name"
   value       = github_repository.this.default_branch

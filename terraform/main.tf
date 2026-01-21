@@ -25,6 +25,12 @@ provider "github" {
 
   # Token is read from GITHUB_TOKEN environment variable
   # Token must have repo and admin:org scopes
+
+  # Rate limiting for large organizations
+  # GitHub API limits: 5000 requests/hour for authenticated requests
+  # These delays help avoid hitting rate limits during large applies
+  read_delay_ms  = var.github_read_delay_ms
+  write_delay_ms = var.github_write_delay_ms
 }
 
 # Manage all repositories using YAML configuration
