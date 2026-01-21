@@ -13,6 +13,7 @@ Manage your GitHub organization's repositories as code using Terraform and YAML 
 - **YAML-based configuration** - Human-readable repository definitions
 - **Configuration groups** - Share settings across multiple repositories (DRY)
 - **Repository rulesets** - Enforce branch protection and policies
+- **GitHub Actions permissions** - Control which actions can run and workflow permissions
 - **Subscription-aware** - Gracefully handles GitHub Free tier limitations
 - **Onboarding script** - Easily import existing repositories
 
@@ -94,8 +95,54 @@ make validate  # Validate configuration
 | Public repo rulesets | Yes | Yes | Yes | Yes |
 | Private repo rulesets | No | Yes | Yes | Yes |
 | Push rulesets | No | No | Yes | Yes |
+| Actions permissions | Yes | Yes | Yes | Yes |
 
 The template automatically skips unsupported features based on your subscription tier.
+
+## 🔒 GitHub Actions Security Best Practices
+
+GitHub Actions permissions can significantly impact your supply chain security. This template supports
+comprehensive Actions configuration at both organization and repository levels.
+
+### Configuration Options
+
+**Organization Level** (`config/config.yml`):
+
+```yaml
+actions:
+  enabled_repositories: all         # all, none, selected
+  allowed_actions: selected         # all, local_only, selected
+  allowed_actions_config:
+    github_owned_allowed: true      # Allow github/* actions
+    verified_allowed: true          # Allow verified marketplace actions
+    patterns_allowed:
+      - "actions/*"
+      - "your-org/*"
+  default_workflow_permissions: read  # read, write
+  can_approve_pull_request_reviews: false
+```
+
+**Repository Level** (`config/repositories.yml` or `config/groups.yml`):
+
+```yaml
+my-repo:
+  actions:
+    enabled: true
+    allowed_actions: selected
+    allowed_actions_config:
+      github_owned_allowed: true
+      verified_allowed: true
+      patterns_allowed:
+        - "actions/*"
+```
+
+### Security Recommendations
+
+1. **Use `selected` allowed_actions** - Restrict which actions can run to reduce supply chain risk
+2. **Default to `read` workflow permissions** - Only grant write access when explicitly needed
+3. **Disable PR approval for workflows** - Prevent automated bypassing of review requirements
+4. **Use group inheritance** - Define secure defaults in groups that repositories inherit
+5. **Pin action versions** - Use SHA or version tags in `patterns_allowed` (e.g., `actions/checkout@v4`)
 
 ## ⚖️ License
 

@@ -174,3 +174,27 @@ variable "rulesets" {
   }))
   default = {}
 }
+
+variable "actions" {
+  description = "GitHub Actions permissions configuration for the repository"
+  type = object({
+    # Enable/disable Actions for this repository
+    enabled = optional(bool, true)
+
+    # Which actions are allowed to run: all, local_only, selected
+    allowed_actions = optional(string, "all")
+
+    # Configuration when allowed_actions is "selected"
+    allowed_actions_config = optional(object({
+      github_owned_allowed = optional(bool, true)
+      verified_allowed     = optional(bool, true)
+      patterns_allowed     = optional(list(string), [])
+    }))
+  })
+  default = null
+
+  validation {
+    condition     = var.actions == null || contains(["all", "local_only", "selected"], coalesce(var.actions.allowed_actions, "all"))
+    error_message = "allowed_actions must be 'all', 'local_only', or 'selected'."
+  }
+}

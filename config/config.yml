@@ -30,3 +30,33 @@ defaults:
   allow_update_branch: false
   delete_branch_on_merge: false
   web_commit_signoff_required: false
+
+# Organization-level GitHub Actions configuration (optional)
+# Uncomment and configure to manage Actions permissions at the organization level
+# These settings act as a policy ceiling - repositories cannot exceed org permissions
+#
+# actions:
+#   # Which repositories can use Actions: all, none, selected
+#   enabled_repositories: all
+#
+#   # Which actions are allowed to run: all, local_only, selected
+#   # - all: Any action can be used
+#   # - local_only: Only actions defined in the repository
+#   # - selected: Only actions matching the allowed_actions_config
+#   allowed_actions: selected
+#
+#   # Configuration when allowed_actions is "selected"
+#   allowed_actions_config:
+#     github_owned_allowed: true      # Allow actions in github/* namespace
+#     verified_allowed: true          # Allow marketplace verified creators
+#     patterns_allowed:               # Explicit patterns to allow
+#       - "actions/*"
+#       - "your-org/*"
+#
+#   # Default GITHUB_TOKEN permissions for workflows: read, write
+#   # Secure default: read (principle of least privilege)
+#   default_workflow_permissions: read
+#
+#   # Whether Actions can approve pull request reviews
+#   # Secure default: false
+#   can_approve_pull_request_reviews: false

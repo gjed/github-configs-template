@@ -59,4 +59,45 @@ module "repositories" {
 
   # Apply rulesets based on repository groups
   rulesets = each.value.rulesets
+
+  # Apply Actions permissions configuration
+  actions = each.value.actions
+}
+
+# Organization-level Actions permissions
+# Only created when actions configuration is specified in config.yml
+resource "github_actions_organization_permissions" "this" {
+  count = local.org_actions_config != null ? 1 : 0
+
+  # Which repositories can use Actions: all, none, selected
+  enabled_repositories = try(local.org_actions_config.enabled_repositories, "all")
+
+  # Which actions are allowed: all, local_only, selected
+  allowed_actions = try(local.org_actions_config.allowed_actions, "all")
+
+  # Configuration for "selected" allowed_actions policy
+  dynamic "allowed_actions_config" {
+    for_each = try(local.org_actions_config.allowed_actions, "all") == "selected" ? [1] : []
+    content {
+      github_owned_allowed = try(local.org_actions_config.allowed_actions_config.github_owned_allowed, true)
+      verified_allowed     = try(local.org_actions_config.allowed_actions_config.verified_allowed, true)
+      patterns_allowed     = try(local.org_actions_config.allowed_actions_config.patterns_allowed, [])
+    }
+  }
+}
+
+# Organization-level workflow permissions (GITHUB_TOKEN defaults)
+# Only created when actions configuration is specified in config.yml
+resource "github_actions_organization_workflow_permissions" "this" {
+  count = local.org_actions_config != null ? 1 : 0
+
+  organization_slug = local.github_org
+
+  # Default GITHUB_TOKEN permissions: read or write
+  # Secure default: read (principle of least privilege)
+  default_workflow_permissions = try(local.org_actions_config.default_workflow_permissions, "read")
+
+  # Whether Actions can approve pull request reviews
+  # Secure default: false
+  can_approve_pull_request_reviews = try(local.org_actions_config.can_approve_pull_request_reviews, false)
 }
