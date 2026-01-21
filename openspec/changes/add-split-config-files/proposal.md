@@ -8,14 +8,30 @@ for better maintainability and team ownership.
 
 ## What Changes
 
-- Support loading configuration from either a single `<type>.yml` file OR a `<type>/` directory
-  containing multiple `.yml` files
-- Applies to: `repositories`, `groups`, and `rulesets` configuration types
-- When a directory exists, all `.yml` files within it are loaded and merged
-- Single file takes precedence if both file and directory exist (prevents ambiguity)
+- Split configuration MUST be loaded from `<type>/` directories containing multiple `.yml` files
+- Applies to: `repository`, `group`, and `ruleset` configuration types only
+- `config/config.yml` remains a single file (organization-level settings, not splittable)
+- All `.yml` files within supported directories are loaded and merged alphabetically
+- Single-file configuration (`<type>.yml`) is NOT supported for splittable types - directory structure is mandatory
+- Directory names use singular form (like modernized apt sources.list.d)
+
+## Directory Structure
+
+```text
+config/
+  config.yml              # Single file (organization settings) - NOT splittable
+  repository/             # Split directory (mandatory)
+    frontend.yml
+    backend.yml
+  group/                  # Split directory (mandatory)
+    oss.yml
+    internal.yml
+  ruleset/                # Split directory (mandatory)
+    branch-protection.yml
+```
 
 ## Impact
 
 - Affected specs: `repository-management`
 - Affected code: `terraform/yaml-config.tf` (config loading logic)
-- Backward compatible: existing single-file configurations continue to work unchanged
+- Breaking change: existing single-file configurations must be migrated to directories
