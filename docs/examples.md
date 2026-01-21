@@ -2,31 +2,50 @@
 
 Common configuration patterns for different use cases.
 
+## Directory Structure Overview
+
+```text
+config/
+├── config.yml              # Organization settings (single file)
+├── repository/             # Repository definitions
+│   ├── default-repositories.yml  # Default/example repositories
+│   ├── frontend.yml              # Frontend team repositories
+│   └── backend.yml               # Backend team repositories
+├── group/                  # Configuration groups
+│   ├── default-groups.yml  # Default groups (base, oss, internal)
+│   └── custom-groups.yml   # Custom organization groups
+└── ruleset/                # Ruleset definitions
+    ├── default-rulesets.yml  # Default rulesets
+    └── custom-rulesets.yml   # Custom rulesets
+```
+
 ## Microservices Organization
 
 ```yaml
-groups:
-  microservice:
-    visibility: private
-    has_issues: true
-    delete_branch_on_merge: true
-    topics:
-      - microservice
+# config/group/microservice.yml
+microservice:
+  visibility: private
+  has_issues: true
+  delete_branch_on_merge: true
+  topics:
+    - microservice
+```
 
-repositories:
-  user-service:
-    groups: [microservice]
-    description: "User management service"
-    topics:
-      - users
-      - auth
+```yaml
+# config/repository/services.yml
+user-service:
+  groups: [microservice]
+  description: "User management service"
+  topics:
+    - users
+    - auth
 
-  order-service:
-    groups: [microservice]
-    description: "Order processing service"
-    topics:
-      - orders
-      - payments
+order-service:
+  groups: [microservice]
+  description: "Order processing service"
+  topics:
+    - orders
+    - payments
 ```
 
 ## Open Source Project
