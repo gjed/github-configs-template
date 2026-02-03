@@ -4,7 +4,7 @@ Manage your GitHub organization's repositories as code using Terraform and YAML 
 
 <!-- markdownlint-disable MD033 -->
 <p align="center">
-  <img src="docs/logo.png" alt="GitHub Organization Terraform Template" width="400">
+  <img src="wiki/logo.png" alt="GitHub Organization Terraform Template" width="400">
 </p>
 <!-- markdownlint-enable MD033 -->
 
@@ -51,7 +51,7 @@ export GITHUB_TOKEN="your_github_token"
 make init && make plan && make apply
 ```
 
-See the [Quick Start Guide](docs/QUICKSTART.md) for detailed setup instructions.
+See the [Quick Start Guide](https://github.com/gjed/github-configs-template/wiki/Quick-Start) for detailed setup instructions.
 
 ## 🔧 Example Configuration
 
@@ -76,9 +76,15 @@ docs-site:
 
 ## 📚 Documentation
 
-- [Quick Start Guide](docs/QUICKSTART.md) - Get up and running
-- [Configuration Reference](docs/CONFIGURATION.md) - All available options
-- [Customization Guide](docs/CUSTOMIZATION.md) - Extend the template
+Documentation is available in the [Wiki](https://github.com/gjed/github-configs-template/wiki):
+
+- [Quick Start Guide](https://github.com/gjed/github-configs-template/wiki/Quick-Start) - Get up and running
+- [Configuration Reference](https://github.com/gjed/github-configs-template/wiki/Configuration-Reference) - All available options
+- [Customization Guide](https://github.com/gjed/github-configs-template/wiki/Customization) - Extend the template
+- [Examples](https://github.com/gjed/github-configs-template/wiki/Examples) - Common configuration patterns
+- [Troubleshooting](https://github.com/gjed/github-configs-template/wiki/Troubleshooting) - Common issues and solutions
+
+> **Note:** The wiki is available as a git submodule in the `wiki/` directory for local access.
 
 ## 📋 Requirements
 
