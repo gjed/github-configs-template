@@ -50,7 +50,7 @@ internal:
   has_discussions: false
   has_issues: true
   has_projects: false
-  has_wiki: true
+  has_wiki: false
   # Uncomment below if you have a paid GitHub plan
   # rulesets:
   #   - internal-main-protection
