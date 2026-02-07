@@ -28,8 +28,11 @@ output "visibility" {
   value       = github_repository.this.visibility
 }
 
+# Note: The default_branch attribute on github_repository is deprecated for writing.
+# Use the github_branch_default resource to set/change the default branch.
+# Reading the default_branch attribute is still supported and will continue to work.
 output "default_branch" {
-  description = "Default branch name"
+  description = "Default branch name (read-only, use github_branch_default to change)"
   value       = github_repository.this.default_branch
 }
 

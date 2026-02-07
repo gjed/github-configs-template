@@ -14,24 +14,24 @@ base:
 # OSS - Open Source repositories
 # Use this group for public, open-source projects
 oss:
-  visibility: public
-  has_wiki: true
-  has_issues: true
-  has_projects: false
-  has_discussions: true
-  allow_merge_commit: true
-  allow_squash_merge: true
-  allow_rebase_merge: true
   allow_auto_merge: false
+  allow_merge_commit: true
+  allow_rebase_merge: true
+  allow_squash_merge: true
   allow_update_branch: true
   delete_branch_on_merge: true
-  web_commit_signoff_required: true
-  vulnerability_alerts: true
+  has_discussions: true
+  has_issues: true
+  has_projects: false
+  has_wiki: true
   require_linear_history: true
-  topics:
-    - oss
   rulesets:
     - oss-main-protection
+  topics:
+    - oss
+  visibility: public
+  vulnerability_alerts: true
+  web_commit_signoff_required: true
   # Webhooks: reference by name from config/webhook/ or define inline
   # webhooks:
   #   - slack-notify           # Reference by name
@@ -41,24 +41,24 @@ oss:
 # Use this group for internal/private projects
 # Note: Rulesets require a paid GitHub plan for private repos
 internal:
-  visibility: private
-  has_wiki: true
-  has_issues: true
-  has_projects: false
-  has_discussions: false
-  allow_merge_commit: false
-  allow_squash_merge: true
-  allow_rebase_merge: true
   allow_auto_merge: false
+  allow_merge_commit: false
+  allow_rebase_merge: true
+  allow_squash_merge: true
   allow_update_branch: true
   delete_branch_on_merge: true
-  web_commit_signoff_required: true
-  vulnerability_alerts: true
-  topics:
-    - internal
+  has_discussions: false
+  has_issues: true
+  has_projects: false
+  has_wiki: true
   # Uncomment below if you have a paid GitHub plan
   # rulesets:
   #   - internal-main-protection
+  topics:
+    - internal
+  visibility: private
+  vulnerability_alerts: true
+  web_commit_signoff_required: true
 
 # Example: Secure Actions group
 # Apply this group to repositories that need restricted Actions permissions

@@ -96,7 +96,7 @@ list_repos_in_state() {
 
     cd "$TF_DIR"
     local repos
-    repos=$(terraform state list 2>/dev/null | grep 'module.repositories\[' | sed 's/.*\["\([^"]*\)"\].*/\1/' | sort -u)
+    repos=$(terraform state list 2>/dev/null | grep 'module.repositories\[.*\]\.github_repository\.this$' | sed 's/.*\["\([^"]*\)"\].*/\1/' | sort -u)
 
     if [[ -z "$repos" ]]; then
         log_warn "No repositories found in Terraform state"

@@ -13,12 +13,10 @@ from pathlib import Path
 
 CONFIG_DIR = Path(__file__).parent.parent / "config"
 
-REQUIRED_FILES = [
-    "config.yml",
-    "groups.yml",
-    "repositories.yml",
-    "rulesets.yml",
-]
+# New directory structure paths
+GROUP_DIR = CONFIG_DIR / "group"
+REPOSITORY_DIR = CONFIG_DIR / "repository"
+RULESET_DIR = CONFIG_DIR / "ruleset"
 
 VALID_VISIBILITIES = ["public", "private", "internal"]
 VALID_PERMISSIONS = ["pull", "triage", "push", "maintain", "admin"]
@@ -48,6 +46,19 @@ def load_yaml(filepath: Path) -> dict:
         raise ValueError(f"Invalid YAML in {filepath}: {e}")
 
 
+def load_yaml_directory(directory: Path) -> dict:
+    """Load and merge all YAML files from a directory."""
+    if not directory.exists():
+        return {}
+
+    merged = {}
+    for filepath in sorted(directory.glob("*.yml")):
+        content = load_yaml(filepath)
+        if content:
+            merged.update(content)
+    return merged
+
+
 def validate_config(config: dict) -> list[str]:
     """Validate config.yml."""
     errors = []
@@ -63,19 +74,19 @@ def validate_config(config: dict) -> list[str]:
 
 
 def validate_groups(groups: dict) -> list[str]:
-    """Validate groups.yml."""
+    """Validate groups configuration."""
     errors = []
 
     for group_name, group_config in groups.items():
         if not isinstance(group_config, dict):
-            errors.append(f"groups.yml: Group '{group_name}' must be a dictionary")
+            errors.append(f"groups: Group '{group_name}' must be a dictionary")
             continue
 
         # Validate visibility if specified
         visibility = group_config.get("visibility")
         if visibility and visibility not in VALID_VISIBILITIES:
             errors.append(
-                f"groups.yml: Group '{group_name}' has invalid visibility '{visibility}'"
+                f"groups: Group '{group_name}' has invalid visibility '{visibility}'"
             )
 
         # Validate teams if specified
@@ -84,46 +95,44 @@ def validate_groups(groups: dict) -> list[str]:
             for team, permission in teams.items():
                 if permission not in VALID_PERMISSIONS:
                     errors.append(
-                        f"groups.yml: Group '{group_name}' team '{team}' has invalid permission '{permission}'"
+                        f"groups: Group '{group_name}' team '{team}' has invalid permission '{permission}'"
                     )
 
     return errors
 
 
 def validate_repositories(repos: dict, groups: dict, rulesets: dict) -> list[str]:
-    """Validate repositories.yml."""
+    """Validate repositories configuration."""
     errors = []
 
     for repo_name, repo_config in repos.items():
         if not isinstance(repo_config, dict):
             errors.append(
-                f"repositories.yml: Repository '{repo_name}' must be a dictionary"
+                f"repositories: Repository '{repo_name}' must be a dictionary"
             )
             continue
 
         # Check required fields
         if "description" not in repo_config:
             errors.append(
-                f"repositories.yml: Repository '{repo_name}' missing 'description'"
+                f"repositories: Repository '{repo_name}' missing 'description'"
             )
 
         if "groups" not in repo_config:
-            errors.append(
-                f"repositories.yml: Repository '{repo_name}' missing 'groups'"
-            )
+            errors.append(f"repositories: Repository '{repo_name}' missing 'groups'")
         else:
             # Validate group references
             for group in repo_config["groups"]:
                 if group not in groups:
                     errors.append(
-                        f"repositories.yml: Repository '{repo_name}' references unknown group '{group}'"
+                        f"repositories: Repository '{repo_name}' references unknown group '{group}'"
                     )
 
         # Validate visibility if specified
         visibility = repo_config.get("visibility")
         if visibility and visibility not in VALID_VISIBILITIES:
             errors.append(
-                f"repositories.yml: Repository '{repo_name}' has invalid visibility '{visibility}'"
+                f"repositories: Repository '{repo_name}' has invalid visibility '{visibility}'"
             )
 
         # Validate teams if specified
@@ -131,63 +140,65 @@ def validate_repositories(repos: dict, groups: dict, rulesets: dict) -> list[str
         for team, permission in teams.items():
             if permission not in VALID_PERMISSIONS:
                 errors.append(
-                    f"repositories.yml: Repository '{repo_name}' team '{team}' has invalid permission '{permission}'"
+                    f"repositories: Repository '{repo_name}' team '{team}' has invalid permission '{permission}'"
                 )
 
         # Validate ruleset references
-        for ruleset in repo_config.get("rulesets", []):
-            if ruleset not in rulesets:
-                errors.append(
-                    f"repositories.yml: Repository '{repo_name}' references unknown ruleset '{ruleset}'"
-                )
+        for ruleset_entry in repo_config.get("rulesets", []):
+            # Handle both string references and template references
+            if isinstance(ruleset_entry, str):
+                if ruleset_entry not in rulesets:
+                    errors.append(
+                        f"repositories: Repository '{repo_name}' references unknown ruleset '{ruleset_entry}'"
+                    )
+            elif isinstance(ruleset_entry, dict) and "template" in ruleset_entry:
+                template_name = ruleset_entry["template"]
+                if template_name not in rulesets:
+                    errors.append(
+                        f"repositories: Repository '{repo_name}' references unknown template '{template_name}'"
+                    )
 
     return errors
 
 
 def validate_rulesets(rulesets: dict) -> list[str]:
-    """Validate rulesets.yml."""
+    """Validate rulesets configuration."""
     errors = []
 
     for ruleset_name, ruleset_config in rulesets.items():
         if not isinstance(ruleset_config, dict):
-            errors.append(
-                f"rulesets.yml: Ruleset '{ruleset_name}' must be a dictionary"
-            )
+            errors.append(f"rulesets: Ruleset '{ruleset_name}' must be a dictionary")
             continue
 
         # Check required fields
         if "target" not in ruleset_config:
-            errors.append(f"rulesets.yml: Ruleset '{ruleset_name}' missing 'target'")
+            errors.append(f"rulesets: Ruleset '{ruleset_name}' missing 'target'")
         elif ruleset_config["target"] not in ["branch", "tag"]:
             errors.append(
-                f"rulesets.yml: Ruleset '{ruleset_name}' has invalid target '{ruleset_config['target']}'"
+                f"rulesets: Ruleset '{ruleset_name}' has invalid target '{ruleset_config['target']}'"
             )
 
         if "enforcement" not in ruleset_config:
-            errors.append(
-                f"rulesets.yml: Ruleset '{ruleset_name}' missing 'enforcement'"
-            )
+            errors.append(f"rulesets: Ruleset '{ruleset_name}' missing 'enforcement'")
         elif ruleset_config["enforcement"] not in ["active", "evaluate", "disabled"]:
             errors.append(
-                f"rulesets.yml: Ruleset '{ruleset_name}' has invalid enforcement '{ruleset_config['enforcement']}'"
+                f"rulesets: Ruleset '{ruleset_name}' has invalid enforcement '{ruleset_config['enforcement']}'"
             )
 
         if "conditions" not in ruleset_config:
-            errors.append(
-                f"rulesets.yml: Ruleset '{ruleset_name}' missing 'conditions'"
-            )
+            errors.append(f"rulesets: Ruleset '{ruleset_name}' missing 'conditions'")
 
         if "rules" not in ruleset_config:
-            errors.append(f"rulesets.yml: Ruleset '{ruleset_name}' missing 'rules'")
+            errors.append(f"rulesets: Ruleset '{ruleset_name}' missing 'rules'")
         else:
             for rule in ruleset_config["rules"]:
                 if "type" not in rule:
                     errors.append(
-                        f"rulesets.yml: Ruleset '{ruleset_name}' has rule without 'type'"
+                        f"rulesets: Ruleset '{ruleset_name}' has rule without 'type'"
                     )
                 elif rule["type"] not in VALID_RULE_TYPES:
                     errors.append(
-                        f"rulesets.yml: Ruleset '{ruleset_name}' has invalid rule type '{rule['type']}'"
+                        f"rulesets: Ruleset '{ruleset_name}' has invalid rule type '{rule['type']}'"
                     )
 
     return errors
@@ -201,11 +212,26 @@ def main():
     print("Validating configuration files...")
     print()
 
-    # Check required files exist
-    for filename in REQUIRED_FILES:
-        filepath = CONFIG_DIR / filename
-        if not filepath.exists():
-            all_errors.append(f"Missing required file: config/{filename}")
+    # Check config.yml exists
+    config_file = CONFIG_DIR / "config.yml"
+    if not config_file.exists():
+        all_errors.append("Missing required file: config/config.yml")
+
+    # Check at least one directory has content
+    if not GROUP_DIR.exists() and not (CONFIG_DIR / "groups.yml").exists():
+        all_errors.append(
+            "Missing group configuration: need config/group/ directory or config/groups.yml"
+        )
+
+    if not REPOSITORY_DIR.exists() and not (CONFIG_DIR / "repositories.yml").exists():
+        all_errors.append(
+            "Missing repository configuration: need config/repository/ directory or config/repositories.yml"
+        )
+
+    if not RULESET_DIR.exists() and not (CONFIG_DIR / "rulesets.yml").exists():
+        all_errors.append(
+            "Missing ruleset configuration: need config/ruleset/ directory or config/rulesets.yml"
+        )
 
     if all_errors:
         for error in all_errors:
@@ -214,15 +240,28 @@ def main():
 
     # Load all config files
     try:
-        config = load_yaml(CONFIG_DIR / "config.yml")
-        groups = load_yaml(CONFIG_DIR / "groups.yml")
-        repos = load_yaml(CONFIG_DIR / "repositories.yml")
-        rulesets = load_yaml(CONFIG_DIR / "rulesets.yml")
+        config = load_yaml(config_file)
+
+        # Load from new directory structure or fall back to old single-file structure
+        if GROUP_DIR.exists():
+            groups = load_yaml_directory(GROUP_DIR)
+        else:
+            groups = load_yaml(CONFIG_DIR / "groups.yml")
+
+        if REPOSITORY_DIR.exists():
+            repos = load_yaml_directory(REPOSITORY_DIR)
+        else:
+            repos = load_yaml(CONFIG_DIR / "repositories.yml")
+
+        if RULESET_DIR.exists():
+            rulesets = load_yaml_directory(RULESET_DIR)
+        else:
+            rulesets = load_yaml(CONFIG_DIR / "rulesets.yml")
     except ValueError as e:
         print(f"ERROR: {e}")
         sys.exit(1)
 
-    # Validate each file
+    # Validate each config type
     all_errors.extend(validate_config(config))
     all_errors.extend(validate_groups(groups))
     all_errors.extend(validate_rulesets(rulesets))

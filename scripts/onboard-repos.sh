@@ -313,7 +313,7 @@ main() {
     if [[ "$GENERATE_YAML" == true ]]; then
         log_info "Generating YAML entries for ${#REPOS[@]} repositories..."
         echo ""
-        echo "# Add the following to config/repositories.yml:"
+        echo "# Add the following to config/repository/*.yml:"
         echo "# ================================================"
 
         for repo in "${REPOS[@]}"; do

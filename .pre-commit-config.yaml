@@ -5,7 +5,7 @@
 repos:
   # General file hygiene
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
@@ -27,7 +27,7 @@ repos:
 
   # Terraform formatting
   - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.86.0
+    rev: v1.96.3
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
@@ -40,7 +40,7 @@ repos:
         args:
           - --args=--quiet
           - --args=--compact
-          - --args=--skip-check=CKV_TF_1,CKV_GIT_1,CKV_GIT_2  # Skip module source version, private repo, and webhook HTTPS checks for template
+          - --args=--skip-check=CKV_TF_1,CKV_GIT_1,CKV_GIT_2
 
   # Markdown linting
   - repo: https://github.com/igorshubovych/markdownlint-cli
@@ -51,10 +51,20 @@ repos:
 
   # YAML linting
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.33.0
+    rev: v1.35.1
     hooks:
       - id: yamllint
         args: [-c, .yamllint.yaml]
+
+  # Configuration validation
+  - repo: local
+    hooks:
+      - id: validate-config
+        name: Validate configuration files
+        entry: python3 scripts/validate-config.py
+        language: system
+        files: ^config/
+        pass_filenames: false
 
 # Configuration for CI environments
 ci:

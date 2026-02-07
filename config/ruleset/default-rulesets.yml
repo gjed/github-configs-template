@@ -144,8 +144,41 @@ internal-main-protection:
     - type: non_fast_forward
     - type: required_linear_history
 
-# Tag protection for version tags
-# Prevents deletion and updates to version tags (v*)
+# Release branch protection (example for release branches)
+release-branch-protection:
+  target: branch
+  enforcement: active
+  conditions:
+    ref_name:
+      include:
+        - "refs/heads/release/*"
+        - "refs/heads/v*"
+      exclude: []
+  rules:
+    - type: deletion
+    - type: non_fast_forward
+    - type: required_linear_history
+    - type: pull_request
+      parameters:
+        required_approving_review_count: 2
+        dismiss_stale_reviews_on_push: true
+        require_code_owner_review: true
+        require_last_push_approval: true
+
+# Development branch protection (example for feature branches)
+dev-branch-protection:
+  target: branch
+  enforcement: evaluate  # Evaluate mode - warns but doesn't block
+  conditions:
+    ref_name:
+      include:
+        - "refs/heads/dev/*"
+        - "refs/heads/feature/*"
+      exclude: []
+  rules:
+    - type: non_fast_forward
+
+# Tag protection (example to prevent tag deletion)
 tag-protection:
   target: tag
   enforcement: active
@@ -157,3 +190,37 @@ tag-protection:
   rules:
     - type: deletion
     - type: update
+
+# Commit message convention enforcement (example)
+commit-message-convention:
+  target: branch
+  enforcement: active
+  conditions:
+    ref_name:
+      include:
+        - "~DEFAULT_BRANCH"
+      exclude: []
+  rules:
+    - type: commit_message_pattern
+      parameters:
+        operator: regex
+        pattern: "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore)(\\(.+\\))?!?: .+"
+        name: "Conventional Commits"
+        negate: false
+
+# Required status checks (example)
+require-ci-checks:
+  target: branch
+  enforcement: active
+  conditions:
+    ref_name:
+      include:
+        - "~DEFAULT_BRANCH"
+      exclude: []
+  rules:
+    - type: required_status_checks
+      parameters:
+        required_checks:
+          - context: "ci/build"
+          - context: "ci/test"
+        strict_required_status_checks_policy: true

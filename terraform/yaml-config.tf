@@ -484,16 +484,23 @@ locals {
             for entry in lookup(lookup(local.config_groups, group_name, {}), "webhooks", []) :
             (can(tostring(entry)) ? tostring(entry) : lookup(entry, "name", "")) => (
               can(tostring(entry)) ?
-              # String reference - look up in webhooks_config
-              lookup(local.webhooks_config, tostring(entry), null) :
+              # String reference - look up in webhooks_config and normalize types
+              {
+                url          = tostring(lookup(local.webhooks_config, tostring(entry), { url = null }).url)
+                content_type = tostring(lookup(lookup(local.webhooks_config, tostring(entry), {}), "content_type", "json"))
+                secret       = try(tostring(lookup(local.webhooks_config, tostring(entry), {}).secret), null)
+                events       = tolist(lookup(lookup(local.webhooks_config, tostring(entry), {}), "events", []))
+                active       = tobool(lookup(lookup(local.webhooks_config, tostring(entry), {}), "active", true))
+                insecure_ssl = tobool(lookup(lookup(local.webhooks_config, tostring(entry), {}), "insecure_ssl", false))
+              } :
               # Inline definition
               {
-                url          = lookup(entry, "url", null)
-                content_type = lookup(entry, "content_type", "json")
-                secret       = lookup(entry, "secret", null)
-                events       = lookup(entry, "events", [])
-                active       = lookup(entry, "active", true)
-                insecure_ssl = lookup(entry, "insecure_ssl", false)
+                url          = tostring(lookup(entry, "url", null))
+                content_type = tostring(lookup(entry, "content_type", "json"))
+                secret       = try(tostring(lookup(entry, "secret", null)), null)
+                events       = tolist(lookup(entry, "events", []))
+                active       = tobool(lookup(entry, "active", true))
+                insecure_ssl = tobool(lookup(entry, "insecure_ssl", false))
               }
             )
             if(can(tostring(entry)) ? tostring(entry) : lookup(entry, "name", "")) != ""
@@ -505,16 +512,23 @@ locals {
             for entry in lookup(repo_config, "webhooks", []) :
             (can(tostring(entry)) ? tostring(entry) : lookup(entry, "name", "")) => (
               can(tostring(entry)) ?
-              # String reference - look up in webhooks_config
-              lookup(local.webhooks_config, tostring(entry), null) :
+              # String reference - look up in webhooks_config and normalize types
+              {
+                url          = tostring(lookup(local.webhooks_config, tostring(entry), { url = null }).url)
+                content_type = tostring(lookup(lookup(local.webhooks_config, tostring(entry), {}), "content_type", "json"))
+                secret       = try(tostring(lookup(local.webhooks_config, tostring(entry), {}).secret), null)
+                events       = tolist(lookup(lookup(local.webhooks_config, tostring(entry), {}), "events", []))
+                active       = tobool(lookup(lookup(local.webhooks_config, tostring(entry), {}), "active", true))
+                insecure_ssl = tobool(lookup(lookup(local.webhooks_config, tostring(entry), {}), "insecure_ssl", false))
+              } :
               # Inline definition
               {
-                url          = lookup(entry, "url", null)
-                content_type = lookup(entry, "content_type", "json")
-                secret       = lookup(entry, "secret", null)
-                events       = lookup(entry, "events", [])
-                active       = lookup(entry, "active", true)
-                insecure_ssl = lookup(entry, "insecure_ssl", false)
+                url          = tostring(lookup(entry, "url", null))
+                content_type = tostring(lookup(entry, "content_type", "json"))
+                secret       = try(tostring(lookup(entry, "secret", null)), null)
+                events       = tolist(lookup(entry, "events", []))
+                active       = tobool(lookup(entry, "active", true))
+                insecure_ssl = tobool(lookup(entry, "insecure_ssl", false))
               }
             )
             if(can(tostring(entry)) ? tostring(entry) : lookup(entry, "name", "")) != ""

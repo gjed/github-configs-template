@@ -9,7 +9,7 @@ organization: your-org-name
 # Options: free, pro, team, enterprise
 # This affects which features are available:
 # - free: Rulesets only work on public repositories
-# - pro: Rulesets work on public and private repositories (personal accounts)
+# - pro: Rulesets work on public and private repositories (personal accounts only)
 # - team: Full ruleset support including push rulesets for private/internal repos
 # - enterprise: Full feature set
 subscription: free
