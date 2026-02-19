@@ -1,0 +1,25 @@
+<type>(<scope>): <description>
+
+# Types:
+#   feat     New feature
+#   fix      Bug fix
+#   docs     Documentation only
+#   style    Formatting, no code change
+#   refactor Code change that is not a fix or feature
+#   perf     Performance improvement
+#   test     Adding or fixing tests
+#   build    Build system or dependency changes
+#   ci       CI configuration changes
+#   chore    Other changes (no src/test impact)
+#
+# Scopes (examples):
+#   repos, config, groups, rulesets, terraform, ci, spec
+#
+# OpenSpec commits:
+#   feat(spec): add <name>        <- adding a spec or change proposal
+#   refactor(spec): update <name> <- updating a spec or change proposal
+#   chore(spec): archive <name>   <- archiving a completed change
+#
+# Breaking changes:
+#   Add ! after type/scope: feat(repos)!: rename keys
+#   Or add footer:          BREAKING CHANGE: description
