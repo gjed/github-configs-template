@@ -29,11 +29,6 @@ resource "github_repository" "this" {
   web_commit_signoff_required = var.web_commit_signoff_required
   vulnerability_alerts        = var.vulnerability_alerts
 
-  # Note: allow_forking is intentionally omitted
-  # It can only be set on organization-owned repositories, not personal accounts
-  # The GitHub provider sends it in PATCH requests even when set to null,
-  # causing API errors for personal accounts
-
   topics = var.topics
 
   auto_init          = var.auto_init
