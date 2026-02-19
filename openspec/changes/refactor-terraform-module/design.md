@@ -35,6 +35,7 @@ long as consumers provide a static string (e.g. `"${path.root}/config"`). A comp
 break plan-time evaluation — this limitation must be documented clearly.
 
 **Alternatives considered:**
+
 - Pre-processing YAML outside Terraform and passing structured data in: rejected — it pushes
   complexity onto consumers and breaks the self-contained nature of the module.
 - Embedding config inside the module: rejected — consumers cannot customise their config without

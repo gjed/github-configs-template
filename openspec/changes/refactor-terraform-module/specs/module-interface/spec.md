@@ -65,7 +65,7 @@ inject webhook secret values at runtime without hardcoding them in configuration
 
 #### Scenario: Consumer provides webhook secret
 
-- **WHEN** a consumer passes `webhook_secrets = { MY_SECRET = "abc123" }`
+- **WHEN** a consumer passes `webhook_secrets = { MY_SECRET = "abc123" }` # pragma: allowlist secret
 - **AND** a webhook config references `env:MY_SECRET`
 - **THEN** the module resolves the secret value at apply time
 
