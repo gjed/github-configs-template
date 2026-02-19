@@ -1,5 +1,13 @@
-# GitHub Organization Infrastructure as Code
-# Configuration is loaded from YAML files in the config/ directory
+# GitHub Organization Terraform Module
+# YAML configuration is loaded from the directory specified by var.config_path.
+#
+# Consumers must configure the GitHub provider in their own root module, e.g.:
+#
+#   provider "github" {
+#     owner = "your-org-name"
+#   }
+#
+# See examples/consumer/ for a complete consumer setup.
 
 terraform {
   required_version = ">= 1.0"
@@ -10,27 +18,6 @@ terraform {
       version = "~> 6.0"
     }
   }
-
-  # Uncomment to configure remote backend for team collaboration
-  # backend "s3" {
-  #   bucket = "your-terraform-state-bucket"
-  #   key    = "github-org/terraform.tfstate"
-  #   region = "us-east-1"
-  # }
-}
-
-provider "github" {
-  # Organization is read from config/config.yml
-  owner = local.github_org
-
-  # Token is read from GITHUB_TOKEN environment variable
-  # Token must have repo and admin:org scopes
-
-  # Rate limiting for large organizations
-  # GitHub API limits: 5000 requests/hour for authenticated requests
-  # These delays help avoid hitting rate limits during large applies
-  read_delay_ms  = var.github_read_delay_ms
-  write_delay_ms = var.github_write_delay_ms
 }
 
 # Manage all repositories using YAML configuration
