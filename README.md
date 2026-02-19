@@ -79,7 +79,10 @@ docs-site:
 Documentation is available in the [Wiki](https://github.com/gjed/github-configs-template/wiki):
 
 - [Quick Start Guide](https://github.com/gjed/github-configs-template/wiki/Quick-Start) - Get up and running
-- [Configuration Reference](https://github.com/gjed/github-configs-template/wiki/Configuration-Reference) - All available options
+- [Configuration Reference](https://github.com/gjed/github-configs-template/wiki/Configuration-Reference) -
+  All available options
+- [Using as a Module](https://github.com/gjed/github-configs-template/wiki/Using-as-a-Module) -
+  Reusable module setup and migration guide
 - [Customization Guide](https://github.com/gjed/github-configs-template/wiki/Customization) - Extend the template
 - [Examples](https://github.com/gjed/github-configs-template/wiki/Examples) - Common configuration patterns
 - [Troubleshooting](https://github.com/gjed/github-configs-template/wiki/Troubleshooting) - Common issues and solutions
@@ -155,6 +158,22 @@ my-repo:
 3. **Disable PR approval for workflows** - Prevent automated bypassing of review requirements
 4. **Use group inheritance** - Define secure defaults in groups that repositories inherit
 5. **Pin action versions** - Use SHA or version tags in `patterns_allowed` (e.g., `actions/checkout@v4`)
+
+## Using as a Module
+
+The `terraform/` directory is a reusable module. Point to it from any org's config
+repo instead of forking:
+
+```hcl
+module "github_org" {
+  source      = "github.com/gjed/github-configs-template//terraform?ref=v1.0.0"
+  config_path = "${path.root}/config"
+}
+```
+
+See the [Using as a Module](https://github.com/gjed/github-configs-template/wiki/Using-as-a-Module)
+wiki page for the full setup guide, variable and output reference, remote state
+configuration, script usage, and migration instructions for existing forks.
 
 ## ⚖️ License
 
