@@ -1,0 +1,48 @@
+# Remote backend configuration example.
+#
+# Copy this file to backend.tf and fill in your values to store Terraform state
+# remotely for team collaboration.
+#
+# IMPORTANT: Never commit backend.tf to version control — it may contain
+# sensitive configuration. Add it to .gitignore.
+#
+# Rename this file to backend.tf and uncomment one of the blocks below.
+
+# --- S3 backend (AWS) ---
+# terraform {
+#   backend "s3" {
+#     bucket         = "your-terraform-state-bucket"
+#     key            = "github-org/terraform.tfstate"
+#     region         = "us-east-1"
+#     encrypt        = true
+#     dynamodb_table = "terraform-state-lock"
+#   }
+# }
+
+# --- GCS backend (Google Cloud) ---
+# terraform {
+#   backend "gcs" {
+#     bucket = "your-terraform-state-bucket"
+#     prefix = "github-org"
+#   }
+# }
+
+# --- Azure backend ---
+# terraform {
+#   backend "azurerm" {
+#     resource_group_name  = "terraform-state-rg"
+#     storage_account_name = "tfstate"
+#     container_name       = "tfstate"
+#     key                  = "github-org.terraform.tfstate"
+#   }
+# }
+
+# --- Terraform Cloud ---
+# terraform {
+#   cloud {
+#     organization = "your-tfc-org"
+#     workspaces {
+#       name = "github-org"
+#     }
+#   }
+# }
