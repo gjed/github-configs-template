@@ -9,17 +9,26 @@
 #   ./scripts/offboard-repos.sh [OPTIONS] [REPO_NAMES...]
 #
 # Options:
-#   -d, --dry-run         Show what would be done without making changes
-#   -c, --remove-config   Also remove from config/repository/*.yml files
-#   -l, --list            List all repositories currently in Terraform state
-#   -h, --help            Show this help message
+#   -d, --dry-run             Show what would be done without making changes
+#   -c, --remove-config       Also remove from config/repository/*.yml files
+#   -l, --list                List all repositories currently in Terraform state
+#   -m, --module-path PREFIX  Terraform module path prefix prepended to resource
+#                             addresses (e.g. "module.github_org." for wrapped
+#                             consumers). Default: "" (direct layout).
+#   -h, --help                Show this help message
 #
 # Examples:
-#   # List repos in Terraform state
+#   # List repos in Terraform state (direct layout)
 #   ./scripts/offboard-repos.sh --list
+#
+#   # List repos when using the module from a consumer root
+#   ./scripts/offboard-repos.sh --module-path "module.github_org." --list
 #
 #   # Remove specific repos from state (dry-run)
 #   ./scripts/offboard-repos.sh --dry-run repo1 repo2
+#
+#   # Remove repos when using the module from a consumer root
+#   ./scripts/offboard-repos.sh --module-path "module.github_org." repo1 repo2
 #
 #   # Remove repos from state and config files
 #   ./scripts/offboard-repos.sh --remove-config repo1 repo2
@@ -52,6 +61,7 @@ REPOSITORY_CONFIG_PATH="$PROJECT_ROOT/config/repository"
 DRY_RUN=false
 REMOVE_CONFIG=false
 LIST=false
+MODULE_PATH=""
 REPOS=()
 
 # Helper functions
@@ -95,11 +105,13 @@ list_repos_in_state() {
     echo ""
 
     cd "$TF_DIR"
+    local state_pattern="${MODULE_PATH}module.repositories[*].github_repository.this"
+    local grep_pattern="${MODULE_PATH}module.repositories\[.*\]\.github_repository\.this$"
     local repos
-    repos=$(terraform state list 2>/dev/null | grep 'module.repositories\[.*\]\.github_repository\.this$' | sed 's/.*\["\([^"]*\)"\].*/\1/' | sort -u)
+    repos=$(terraform state list 2>/dev/null | grep -E "$grep_pattern" | sed 's/.*\["\([^"]*\)"\].*/\1/' | sort -u)
 
     if [[ -z "$repos" ]]; then
-        log_warn "No repositories found in Terraform state"
+        log_warn "No repositories found in Terraform state (pattern: $state_pattern)"
         return
     fi
 
@@ -125,7 +137,7 @@ remove_from_state() {
 
     # Find all state entries for this repo
     local entries
-    entries=$(terraform state list 2>/dev/null | grep "module.repositories\[\"$repo\"\]" || true)
+    entries=$(terraform state list 2>/dev/null | grep "${MODULE_PATH}module.repositories\[\"$repo\"\]" || true)
 
     if [[ -z "$entries" ]]; then
         log_warn "$repo not found in Terraform state"
@@ -211,6 +223,10 @@ parse_args() {
             -l|--list)
                 LIST=true
                 shift
+                ;;
+            -m|--module-path)
+                MODULE_PATH="$2"
+                shift 2
                 ;;
             -h|--help)
                 show_help
