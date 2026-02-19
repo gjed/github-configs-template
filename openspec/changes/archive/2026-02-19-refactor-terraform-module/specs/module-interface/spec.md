@@ -76,5 +76,3 @@ without reading internal state directly:
 - **WHEN** `terraform apply` completes
 - **THEN** `module.github_org.repositories` contains an entry for each managed repo
 - **AND** each entry includes `url`, `ssh_url`, and `visibility`
-
-
