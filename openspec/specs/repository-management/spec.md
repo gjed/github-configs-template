@@ -8,25 +8,29 @@ collaborator access, rulesets for branch protection, and subscription tier aware
 ## Requirements
 ### Requirement: YAML-Based Repository Configuration
 
-The system SHALL read repository configurations from YAML files in the `config/` directory using
-Terraform's native `yamldecode()` function.
+The system SHALL read repository configurations from YAML files under the directory specified by
+`var.config_path` using Terraform's native `yamldecode()` function. The default consumer layout
+expected under `config_path` is: `config.yml` at the root, and sub-directories `group/`,
+`repository/`, `ruleset/`, and `webhook/` containing `*.yml` files.
 
-Split configuration applies to: `repository`, `group`, and `ruleset` types only. These MUST be defined
-in directories using singular naming convention: `config/repository/`, `config/group/`, `config/ruleset/`.
+Split configuration applies to: `repository`, `group`, and `ruleset` types only. These MUST be
+defined in directories using singular naming convention: `<config_path>/repository/`,
+`<config_path>/group/`, `<config_path>/ruleset/`.
 
-Organization-level settings (`config/config.yml`) remain a single file and do not support splitting.
+Organization-level settings (`<config_path>/config.yml`) remain a single file and do not support
+splitting.
 
 #### Scenario: Load common configuration
 
 - **WHEN** Terraform is initialized and planned
-- **THEN** the system reads `config/config.yml` as a single file
+- **THEN** the system reads `<config_path>/config.yml` as a single file
 - **AND** parses organization name and subscription tier
 
 #### Scenario: Load repository configuration from directory
 
-- **GIVEN** a `config/repository/` directory exists with files `frontend.yml` and `backend.yml`
+- **GIVEN** a `<config_path>/repository/` directory exists with files `frontend.yml` and `backend.yml`
 - **WHEN** Terraform is initialized and planned
-- **THEN** the system reads all `.yml` files from the `config/repository/` directory
+- **THEN** the system reads all `.yml` files from the directory
 - **AND** merges them alphabetically into a single configuration map
 
 #### Scenario: Invalid YAML syntax
@@ -36,42 +40,46 @@ Organization-level settings (`config/config.yml`) remain a single file and do no
 
 #### Scenario: Load group configuration from directory
 
-- **GIVEN** a `config/group/` directory exists with files `oss.yml` and `internal.yml`
+- **GIVEN** a `<config_path>/group/` directory exists with files `oss.yml` and `internal.yml`
 - **WHEN** Terraform is initialized and planned
-- **THEN** the system reads all `.yml` files from the `config/group/` directory
+- **THEN** the system reads all `.yml` files from the directory
 - **AND** merges them alphabetically into a single groups configuration map
 
 #### Scenario: Load ruleset configuration from directory
 
-- **GIVEN** a `config/ruleset/` directory exists with files `branch-protection.yml` and `tag-rules.yml`
+- **GIVEN** a `<config_path>/ruleset/` directory exists
 - **WHEN** Terraform is initialized and planned
-- **THEN** the system reads all `.yml` files from the `config/ruleset/` directory
+- **THEN** the system reads all `.yml` files from the directory
 - **AND** merges them alphabetically into a single rulesets configuration map
 
 #### Scenario: Empty directory fallback
 
-- **GIVEN** a `config/repository/` directory exists but contains no `.yml` files
+- **GIVEN** a `<config_path>/repository/` directory exists but contains no `.yml` files
 - **WHEN** Terraform is initialized and planned
 - **THEN** the system uses an empty configuration map for repositories
 
 #### Scenario: Duplicate keys across files in directory
 
-- **GIVEN** a `config/repository/` directory contains `frontend.yml` with key `my-repo`
-- **AND** `backend.yml` also contains key `my-repo`
+- **GIVEN** a `<config_path>/repository/` directory contains two files both defining `my-repo`
 - **WHEN** Terraform is initialized and planned
-- **THEN** the later file (alphabetically, `frontend.yml`) overrides the earlier one (`backend.yml`)
+- **THEN** the later file (alphabetically) overrides the earlier one
 
 #### Scenario: Missing directory
 
-- **GIVEN** a `config/repository/` directory does not exist
+- **GIVEN** a `<config_path>/repository/` directory does not exist
 - **WHEN** Terraform is initialized and planned
 - **THEN** Terraform fails with an error indicating the required directory is missing
 
 #### Scenario: Single file not supported for splittable types
 
-- **GIVEN** only `config/repositories.yml` file exists (no `config/repository/` directory)
+- **GIVEN** only `<config_path>/repositories.yml` exists (no `<config_path>/repository/` directory)
 - **WHEN** Terraform is initialized and planned
 - **THEN** Terraform fails with an error indicating directory structure is required
+
+#### Scenario: Consumer specifies custom config directory
+
+- **WHEN** a consumer sets `config_path = "${path.root}/my-configs"`
+- **THEN** the module reads YAML from `my-configs/` instead of any hardcoded path
 
 ### Requirement: Configuration Groups
 
@@ -562,4 +570,3 @@ The system SHALL securely handle webhook secrets through environment variable re
 - **GIVEN** a webhook is defined without a `secret` field
 - **WHEN** `terraform apply` is executed
 - **THEN** the webhook is created without a secret
-
