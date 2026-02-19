@@ -1,7 +1,7 @@
 # Load and parse YAML configuration
 locals {
   # Configuration directory paths
-  config_base_path       = "${path.module}/../config"
+  config_base_path       = var.config_path
   repository_config_path = "${local.config_base_path}/repository"
   group_config_path      = "${local.config_base_path}/group"
   ruleset_config_path    = "${local.config_base_path}/ruleset"
@@ -110,7 +110,7 @@ locals {
 
   # Load webhook definitions from config/webhook/ directory
   # Directory is optional - missing directory results in empty map
-  webhook_dir = "${path.module}/../config/webhook"
+  webhook_dir = "${local.config_base_path}/webhook"
   webhook_files = try(
     fileset(local.webhook_dir, "*.yml"),
     toset([])
@@ -629,7 +629,7 @@ check "template_references" {
       Invalid template references found:
       ${join("\n      ", [
     for ref in local.invalid_template_refs :
-    "Repository '${ref.repo}' references template '${ref.template}' which does not exist in config/ruleset/templates.yml"
+    "Repository '${ref.repo}' references template '${ref.template}' which does not exist in ${var.config_path}/ruleset/templates.yml"
 ])}
 
       Available templates: ${join(", ", keys(local.ruleset_templates))}
