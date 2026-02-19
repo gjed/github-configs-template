@@ -224,6 +224,12 @@ feat(repos)!: rename repository configuration keys
 BREAKING CHANGE: `config_group` is now `groups` in repositories.yaml
 ```
 
+OpenSpec commits:
+
+- Adding a spec or change proposal: `feat(spec): add <name>`
+- Updating a spec or change proposal: `refactor(spec): update <name>`
+- Archiving a change: `chore(spec): archive <name>`
+
 ## Code Style
 
 - Terraform files: Use `terraform fmt`
