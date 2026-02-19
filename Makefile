@@ -3,6 +3,10 @@
 # Plan file location
 PLAN_FILE := terraform/tfplan
 
+# config_path passed to Terraform so the module can locate YAML files.
+# Consumers of the published module set this in their own main.tf instead.
+export TF_VAR_config_path := $(abspath config)
+
 # Default target
 help:
 	@echo "GitHub Organization Terraform Management"
