@@ -1,0 +1,14 @@
+# Example repository definition.
+# Replace 'example-repo' with the actual repository name.
+# Remove or replace this file with your own repository definitions.
+
+example-repo:
+  description: "An example repository managed by Terraform"
+  groups:
+    - base
+  # Optional overrides (uncomment to use):
+  # visibility: public
+  # topics:
+  #   - example
+  #   - terraform
+  # homepage_url: "https://example.com"

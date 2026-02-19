@@ -1,0 +1,20 @@
+# Organization configuration
+# Replace 'your-org-name' with your GitHub organization or username.
+
+organization: your-org-name
+
+# GitHub subscription tier — controls which features are available.
+# Options: free, pro, team, enterprise
+# - free: rulesets only apply to public repositories
+# - team/enterprise: full ruleset support including private repos
+subscription: free
+
+# Optional: set is_organization to false for personal accounts
+# is_organization: true
+
+# Optional: organization-level GitHub Actions permissions
+# actions:
+#   enabled_repositories: all       # all, none, selected
+#   allowed_actions: all            # all, local_only, selected
+#   default_workflow_permissions: read
+#   can_approve_pull_request_reviews: false
