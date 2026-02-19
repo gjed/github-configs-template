@@ -65,8 +65,8 @@
 
 ## 8. Release
 
-- [ ] 8.1 Create PR with all changes; ensure CI passes
-- [ ] 8.2 After merge, tag `v1.0.0` on `main`
+- [x] 8.1 Create PR with all changes; ensure CI passes
+- [x] 8.2 After merge, tag `v1.0.0` on `main`
 
 **Dependencies:**
 

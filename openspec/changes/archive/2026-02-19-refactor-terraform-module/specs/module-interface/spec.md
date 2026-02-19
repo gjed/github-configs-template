@@ -41,23 +41,6 @@ provider in their own root module, including setting the `owner` field directly.
 
 ---
 
-### Requirement: Rate Limiting Variables
-
-The module SHALL expose `github_read_delay_ms` and `github_write_delay_ms` input variables so
-consumers can tune GitHub API rate limiting behaviour without modifying the module source.
-
-#### Scenario: Consumer sets write delay
-
-- **WHEN** a consumer sets `github_write_delay_ms = 200` in their module call
-- **THEN** the module applies a 200 ms delay between write API calls
-
-#### Scenario: Default delays
-
-- **WHEN** a consumer does not set delay variables
-- **THEN** `github_read_delay_ms` defaults to `0` and `github_write_delay_ms` defaults to `100`
-
----
-
 ### Requirement: Webhook Secrets Variable
 
 The module SHALL expose a `webhook_secrets` variable (sensitive map of strings) so consumers can
@@ -94,28 +77,4 @@ without reading internal state directly:
 - **THEN** `module.github_org.repositories` contains an entry for each managed repo
 - **AND** each entry includes `url`, `ssh_url`, and `visibility`
 
-## MODIFIED Requirements
 
-### Requirement: YAML-Based Repository Configuration
-
-The system SHALL read repository configurations from YAML files under the directory specified by
-`var.config_path` using Terraform's native `yamldecode()` function. The default layout expected
-under `config_path` is: `config.yml` at the root, and sub-directories `group/`, `repository/`,
-`ruleset/`, and `webhook/` containing `*.yml` files.
-
-#### Scenario: Load configuration files
-
-- **WHEN** Terraform is initialized and planned
-- **THEN** the module reads `<config_path>/config.yml`, `<config_path>/group/*.yml`,
-  `<config_path>/repository/*.yml`, and `<config_path>/ruleset/*.yml`
-- **AND** parses them into Terraform local values
-
-#### Scenario: Invalid YAML syntax
-
-- **WHEN** a configuration file contains invalid YAML syntax
-- **THEN** Terraform fails with a parsing error message indicating the file and location
-
-#### Scenario: Consumer specifies custom config directory
-
-- **WHEN** a consumer sets `config_path = "${path.root}/my-configs"`
-- **THEN** the module reads YAML from `my-configs/` instead of any default path
