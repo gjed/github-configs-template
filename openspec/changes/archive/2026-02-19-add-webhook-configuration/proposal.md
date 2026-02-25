@@ -1,6 +1,6 @@
 # Change: Add Webhook Configuration Support
 
-Relates to: [Issue #4](https://github.com/gjed/github-configs-template/issues/4)
+Relates to: [Issue #4](https://github.com/gjed/github-as-yaml/issues/4)
 
 ## Why
 

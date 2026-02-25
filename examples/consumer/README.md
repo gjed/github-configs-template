@@ -1,6 +1,6 @@
 # Consumer Example
 
-This directory shows the minimal setup required to use `github-configs-template` as a
+This directory shows the minimal setup required to use `github-as-yaml` as a
 reusable Terraform module.
 
 ## Directory structure
@@ -45,7 +45,7 @@ provider "github" {
 }
 
 module "github_org" {
-  source      = "github.com/gjed/github-configs-template//terraform?ref=v1.0.0"
+  source      = "github.com/gjed/github-as-yaml//terraform?ref=v1.0.0"
   config_path = "${path.root}/config"
 }
 ```

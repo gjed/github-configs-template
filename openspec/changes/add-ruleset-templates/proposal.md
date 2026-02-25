@@ -1,6 +1,6 @@
 # Change: Add Ruleset Templates
 
-Resolves: [#2](https://github.com/gjed/github-configs-template/issues/2)
+Resolves: [#2](https://github.com/gjed/github-as-yaml/issues/2)
 
 Depends on: `add-split-config-files` (for `config/ruleset/` directory support)
 

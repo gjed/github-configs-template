@@ -32,7 +32,7 @@ This is a Terraform project for managing GitHub organization repositories using 
 ## Project Structure
 
 ```text
-github-configs/
+github-as-yaml/
 ├── config/                           # All YAML configuration files
 │   ├── config.yml                    # Organization and global settings
 │   ├── groups.yml                    # Configuration groups (oss, internal, etc.)

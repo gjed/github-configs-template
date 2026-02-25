@@ -86,6 +86,6 @@ standalone module so consumers can pin to a stable reference.
 
 #### Scenario: Consumer pins to a release
 
-- **WHEN** a consumer sets `source = "git::https://github.com/gjed/github-configs-template.git?ref=v1.0.0"`
+- **WHEN** a consumer sets `source = "git::https://github.com/gjed/github-as-yaml.git?ref=v1.0.0"`
 - **THEN** they receive the stable v1.0.0 module interface
 - **AND** future changes to the module do not affect them until they update the `ref`

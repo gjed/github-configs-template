@@ -1,4 +1,4 @@
-# Consumer entrypoint — minimal setup to use the github-configs-template module.
+# Consumer entrypoint — minimal setup to use the github-as-yaml module.
 #
 # Prerequisites:
 #   export GITHUB_TOKEN="ghp_..."
@@ -33,7 +33,7 @@ provider "github" {
 module "github_org" {
   # Pin to a specific version tag for reproducible builds.
   # Replace the ref with the desired release tag.
-  source = "github.com/gjed/github-configs-template//terraform?ref=v1.0.0"
+  source = "github.com/gjed/github-as-yaml//terraform?ref=v1.0.0"
 
   # Path to the config directory relative to this file.
   # Must be a static string — computed values are not supported.
