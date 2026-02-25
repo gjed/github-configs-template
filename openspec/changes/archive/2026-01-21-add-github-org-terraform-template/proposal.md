@@ -26,7 +26,7 @@ implements:
 
 > **Note:** CI/CD workflow deferred to future spec - users can implement their own GitHub Actions based on their requirements.
 
-The design is inspired by `gjed/github-configs` and adapted for public template use.
+The design is inspired by `gjed/github-configs` and adapted for public use.
 
 ## Impact
 

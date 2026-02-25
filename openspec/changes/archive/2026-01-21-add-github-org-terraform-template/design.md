@@ -110,7 +110,7 @@ sequentially.
 ## File Structure
 
 ```text
-github-configs-template/
+github-as-yaml/
 ├── config/                           # User-editable YAML configuration
 │   ├── config.yml                    # Organization name, subscription tier
 │   ├── groups.yml                    # Configuration groups (oss, internal)

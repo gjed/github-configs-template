@@ -1,6 +1,6 @@
 # Change: Add GitHub Actions Permissions Configuration
 
-Resolves: [#5](https://github.com/gjed/github-configs-template/issues/5)
+Resolves: [#5](https://github.com/gjed/github-as-yaml/issues/5)
 
 ## Why
 

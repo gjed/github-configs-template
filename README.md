@@ -1,15 +1,15 @@
-# 🏗️ GitHub Organization Terraform Template
+# GitHub As YAML
 
 Manage your GitHub organization's repositories as code using Terraform and YAML configuration.
 
 <!-- markdownlint-disable MD033 -->
 <p align="center">
-  <img src="wiki/logo.png" alt="GitHub Organization Terraform Template" width="400">
+  <img src="wiki/logo.png" alt="GitHub As YAML" width="400">
 </p>
 <!-- markdownlint-enable MD033 -->
 
 > **Note:** See [gjed/github-configs-public](https://github.com/gjed/github-configs-public) for a public example of
-> this template in action.
+> this project in action.
 
 ## ✨ Features
 
@@ -51,7 +51,7 @@ export GITHUB_TOKEN="your_github_token"
 make init && make plan && make apply
 ```
 
-See the [Quick Start Guide](https://github.com/gjed/github-configs-template/wiki/Quick-Start) for detailed setup instructions.
+See the [Quick Start Guide](https://github.com/gjed/github-as-yaml/wiki/Quick-Start) for detailed setup instructions.
 
 ## 🔧 Example Configuration
 
@@ -76,16 +76,16 @@ docs-site:
 
 ## 📚 Documentation
 
-Documentation is available in the [Wiki](https://github.com/gjed/github-configs-template/wiki):
+Documentation is available in the [Wiki](https://github.com/gjed/github-as-yaml/wiki):
 
-- [Quick Start Guide](https://github.com/gjed/github-configs-template/wiki/Quick-Start) - Get up and running
-- [Configuration Reference](https://github.com/gjed/github-configs-template/wiki/Configuration-Reference) -
+- [Quick Start Guide](https://github.com/gjed/github-as-yaml/wiki/Quick-Start) - Get up and running
+- [Configuration Reference](https://github.com/gjed/github-as-yaml/wiki/Configuration-Reference) -
   All available options
-- [Using as a Module](https://github.com/gjed/github-configs-template/wiki/Using-as-a-Module) -
+- [Using as a Module](https://github.com/gjed/github-as-yaml/wiki/Using-as-a-Module) -
   Reusable module setup and migration guide
-- [Customization Guide](https://github.com/gjed/github-configs-template/wiki/Customization) - Extend the template
-- [Examples](https://github.com/gjed/github-configs-template/wiki/Examples) - Common configuration patterns
-- [Troubleshooting](https://github.com/gjed/github-configs-template/wiki/Troubleshooting) - Common issues and solutions
+- [Customization Guide](https://github.com/gjed/github-as-yaml/wiki/Customization) - Extend the template
+- [Examples](https://github.com/gjed/github-as-yaml/wiki/Examples) - Common configuration patterns
+- [Troubleshooting](https://github.com/gjed/github-as-yaml/wiki/Troubleshooting) - Common issues and solutions
 
 > **Note:** The wiki is available as a git submodule in the `wiki/` directory for local access.
 
@@ -112,7 +112,7 @@ make validate  # Validate configuration
 | Push rulesets | No | No | Yes | Yes |
 | Actions permissions | Yes | Yes | Yes | Yes |
 
-The template automatically skips unsupported features based on your subscription tier.
+Unsupported features are automatically skipped based on your subscription tier.
 
 ## 🔒 GitHub Actions Security Best Practices
 
@@ -166,12 +166,12 @@ repo instead of forking:
 
 ```hcl
 module "github_org" {
-  source      = "github.com/gjed/github-configs-template//terraform?ref=v1.0.0"
+  source      = "github.com/gjed/github-as-yaml//terraform?ref=v1.0.0"
   config_path = "${path.root}/config"
 }
 ```
 
-See the [Using as a Module](https://github.com/gjed/github-configs-template/wiki/Using-as-a-Module)
+See the [Using as a Module](https://github.com/gjed/github-as-yaml/wiki/Using-as-a-Module)
 wiki page for the full setup guide, variable and output reference, remote state
 configuration, script usage, and migration instructions for existing forks.
 

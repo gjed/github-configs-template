@@ -1,4 +1,4 @@
-# Contributing to GitHub Configs Template
+# Contributing to GitHub As YAML
 
 Thank you for your interest in contributing! This document provides guidelines and instructions
 for contributing to this project.
@@ -57,8 +57,8 @@ Feature requests are welcome! Please:
 1. Clone your fork:
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/github-configs-template.git
-   cd github-configs-template
+   git clone https://github.com/YOUR_USERNAME/github-as-yaml.git
+   cd github-as-yaml
    ```
 
 2. Install pre-commit hooks:
