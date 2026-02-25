@@ -4,7 +4,7 @@ Manage your GitHub organization's repositories as code using Terraform and YAML 
 
 <!-- markdownlint-disable MD033 -->
 <p align="center">
-  <img src="wiki/logo.png" alt="GitHub As YAML" width="400">
+  <img src="docs/logo.png" alt="GitHub As YAML" width="400">
 </p>
 <!-- markdownlint-enable MD033 -->
 
