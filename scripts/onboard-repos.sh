@@ -43,7 +43,7 @@
 # Requirements:
 #   - gh CLI (GitHub CLI) installed and authenticated
 #   - yq (YAML processor) for reading config - falls back to Python if not available
-#   - terraform initialized in terraform/ directory (for --import)
+#   - terraform initialized in the project root directory (for --import)
 #
 
 set -euo pipefail
@@ -214,12 +214,7 @@ import_repo() {
     local repo="$2"
     local dry_run="$3"
 
-    local tf_dir="$PROJECT_ROOT/terraform"
-
-    if [[ ! -d "$tf_dir" ]]; then
-        log_error "Terraform directory not found: $tf_dir"
-        return 1
-    fi
+    local tf_dir="$PROJECT_ROOT"
 
     local import_addr="${MODULE_PATH}module.repositories[\"$repo\"].github_repository.this"
     # GitHub provider expects just the repo name when owner is configured in provider

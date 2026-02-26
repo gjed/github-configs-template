@@ -33,7 +33,7 @@
 #   ./scripts/migrate-state.sh --execute
 #
 # Requirements:
-#   - terraform initialized in the current or terraform/ directory
+#   - terraform initialized in the project root directory
 #
 
 set -euo pipefail
@@ -47,7 +47,7 @@ NC='\033[0m' # No Color
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-TF_DIR="$PROJECT_ROOT/terraform"
+TF_DIR="$PROJECT_ROOT"
 
 # Defaults
 SOURCE_PREFIX=""
