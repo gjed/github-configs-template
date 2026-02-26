@@ -32,19 +32,23 @@ This is a Terraform project for managing GitHub organization repositories using 
 ## Project Structure
 
 ```text
-github-as-yaml/
-├── config/                           # All YAML configuration files
+terraform-github-config-as-yaml/
+├── main.tf                           # Terraform module entry point
+├── variables.tf                      # Module input variables
+├── outputs.tf                        # Module outputs
+├── yaml-config.tf                    # YAML parsing and processing logic
+├── modules/repository/               # Repository resource submodule
+├── config/                           # Template YAML configuration files
 │   ├── config.yml                    # Organization and global settings
-│   ├── groups.yml                    # Configuration groups (oss, internal, etc.)
-│   ├── repositories.yml              # Repository definitions
-│   └── rulesets.yml                  # Ruleset definitions
-├── terraform/
-│   ├── main.tf                       # Terraform entry point
-│   ├── yaml-config.tf                # YAML parsing and processing logic
-│   └── modules/repository/           # Repository resource module
+│   ├── group/                        # Configuration groups (oss, internal, etc.)
+│   ├── repository/                   # Repository definitions
+│   └── ruleset/                      # Ruleset definitions
+├── examples/consumer/                # Consumer example for module usage
 ├── scripts/
-│   ├── validate-rulesets.py          # Validates ruleset references
-│   └── import-repo.sh                # Import existing repositories
+│   ├── validate-config.py            # Validates configuration files
+│   ├── onboard-repos.sh              # Import existing repositories
+│   ├── offboard-repos.sh             # Remove repos from management
+│   └── migrate-state.sh              # State migration helper
 └── .pre-commit-config.yaml           # Pre-commit hooks configuration
 ```
 
@@ -54,9 +58,9 @@ github-as-yaml/
 - `config/groups.yml` - Configuration groups (oss, internal, etc.)
 - `config/repositories.yml` - Repository definitions
 - `config/rulesets.yml` - Ruleset definitions
-- `terraform/main.tf` - Terraform entry point, sets GitHub organization
-- `terraform/yaml-config.tf` - YAML parsing and processing logic
-- `terraform/modules/repository/` - Repository resource module
+- `main.tf` - Terraform entry point, sets GitHub organization
+- `yaml-config.tf` - YAML parsing and processing logic
+- `modules/repository/` - Repository resource module
 
 ## Common Tasks
 
