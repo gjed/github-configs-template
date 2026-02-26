@@ -1,7 +1,7 @@
 .PHONY: help init plan plan-repo plan-show plan-pr apply apply-repo destroy validate fmt clean
 
 # Plan file location
-PLAN_FILE := terraform/tfplan
+PLAN_FILE := tfplan
 
 # config_path passed to Terraform so the module can locate YAML files.
 # Consumers of the published module set this in their own main.tf instead.
@@ -36,12 +36,12 @@ help:
 # Initialize Terraform
 init:
 	@echo "Initializing Terraform..."
-	cd terraform && terraform init
+	terraform init
 
 # Plan changes and save to file
 plan:
 	@echo "Planning Terraform changes..."
-	cd terraform && terraform plan -out=tfplan
+	terraform plan -out=tfplan
 	@echo ""
 	@echo "Plan saved to $(PLAN_FILE)"
 	@echo "Run 'make plan-show' to view the plan or 'make apply' to apply"
@@ -53,7 +53,7 @@ plan-repo:
 		exit 1; \
 	fi
 	@echo "Planning changes for repository: $(REPO)..."
-	cd terraform && terraform plan -target='module.repositories["$(REPO)"]' -out=tfplan
+	terraform plan -target='module.repositories["$(REPO)"]' -out=tfplan
 	@echo ""
 	@echo "Plan saved to $(PLAN_FILE)"
 	@echo "Run 'make plan-show' to view the plan or 'make apply' to apply"
@@ -64,13 +64,13 @@ plan-show:
 		echo "Error: No plan file found. Run 'make plan' first."; \
 		exit 1; \
 	fi
-	cd terraform && terraform show tfplan
+	terraform show tfplan
 
 # Run plan and post comment to GitHub PR (for CI)
 # Requires: GITHUB_TOKEN, TFCMT_REPO_OWNER, TFCMT_REPO_NAME, TFCMT_PR_NUMBER
 plan-pr:
 	@echo "Running plan with tfcmt..."
-	cd terraform && tfcmt plan -- terraform plan
+	tfcmt plan -- terraform plan
 
 # Apply changes from saved plan
 apply:
@@ -79,7 +79,7 @@ apply:
 		exit 1; \
 	fi
 	@echo "Applying Terraform changes from saved plan..."
-	cd terraform && terraform apply tfplan
+	terraform apply tfplan
 	@rm -f $(PLAN_FILE)
 	@echo "Plan file removed after successful apply"
 
@@ -90,27 +90,27 @@ apply-repo:
 		exit 1; \
 	fi
 	@echo "Applying changes for repository: $(REPO)..."
-	cd terraform && terraform apply -target='module.repositories["$(REPO)"]'
+	terraform apply -target='module.repositories["$(REPO)"]'
 
 # Destroy resources (with confirmation)
 destroy:
 	@echo "WARNING: This will destroy all managed resources!"
-	cd terraform && terraform destroy
+	terraform destroy
 
 # Validate configuration
 validate:
 	@echo "Validating Terraform configuration..."
-	cd terraform && terraform validate
+	terraform validate
 
 # Format Terraform files
 fmt:
 	@echo "Formatting Terraform files..."
-	cd terraform && terraform fmt -recursive
+	terraform fmt -recursive
 
 # Clean up
 clean:
 	@echo "Cleaning up Terraform cache and plan..."
-	rm -rf terraform/.terraform
-	rm -f terraform/.terraform.lock.hcl
+	rm -rf .terraform
+	rm -f .terraform.lock.hcl
 	rm -f $(PLAN_FILE)
 	@echo "Note: State files (*.tfstate) are preserved for safety"
