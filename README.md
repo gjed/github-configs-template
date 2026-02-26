@@ -27,7 +27,9 @@ provider "github" {
 }
 ```
 
-See the [consumer example](examples/consumer/) for a complete setup.
+See the [consumer example](examples/consumer/) for a complete setup and the
+[Wiki](https://github.com/gjed/terraform-github-config-as-yaml/wiki) for full
+documentation.
 
 ## Features
 
