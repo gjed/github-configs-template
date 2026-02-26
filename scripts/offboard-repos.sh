@@ -34,7 +34,7 @@
 #   ./scripts/offboard-repos.sh --remove-config repo1 repo2
 #
 # Requirements:
-#   - terraform initialized in terraform/ directory
+#   - terraform initialized in the project root directory
 #
 # Notes:
 #   - This does NOT delete repositories from GitHub
@@ -54,7 +54,7 @@ NC='\033[0m' # No Color
 # Script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-TF_DIR="$PROJECT_ROOT/terraform"
+TF_DIR="$PROJECT_ROOT"
 REPOSITORY_CONFIG_PATH="$PROJECT_ROOT/config/repository"
 
 # Default values
