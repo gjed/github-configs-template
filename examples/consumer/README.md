@@ -45,7 +45,9 @@ provider "github" {
 }
 
 module "github_org" {
-  source      = "github.com/gjed/github-as-yaml//terraform?ref=v1.0.0"
+  source  = "gjed/config-as-yaml/github"
+  version = "~> 1.0"
+
   config_path = "${path.root}/config"
 }
 ```
