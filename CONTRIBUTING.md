@@ -57,8 +57,8 @@ Feature requests are welcome! Please:
 1. Clone your fork:
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/github-as-yaml.git
-   cd github-as-yaml
+   git clone https://github.com/YOUR_USERNAME/terraform-github-config-as-yaml.git
+   cd terraform-github-config-as-yaml
    ```
 
 2. Install pre-commit hooks:
